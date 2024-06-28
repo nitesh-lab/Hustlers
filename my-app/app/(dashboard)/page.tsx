@@ -1,48 +1,23 @@
 import { auth } from '@/auth'
-import LandingPage from '@/components/LandingPage'
-import NavBar from '@/components/NavBar'
-import { user_obj } from '@/components/auth/Signup'
-import dbConnect from '@/lib/mongoConnect'
-import redisConnect from '@/lib/redisConnect'
-import { User } from '@/models/user_model'
+import LandingPage from '@/components/LandingPage';
+import NavBar from '@/components/NavBar';
+import { axiosInstance } from '@/lib/axiosInstance'
 import { redirect } from 'next/navigation'
-import React from 'react'
+
 
 export default async function page() {
  
   const session = await auth();
-  const client=redisConnect();
   let user={};
  
 if (session && session.user &&  session.user.email && session.user.email?.length>0) {
 
-  const user_exists=await client.json.get(session.user.email);
 
-  if(user_exists){  // cache hit user exists.
-    redirect("/dashboard");
+   const res=await axiosInstance.post("api/user/create",{email:session.user.email,name:session.user.name,image:session.user.image})
+  if(res.status==200){
+   redirect("/dashboard");
   }
-
-  else{    // cache miss
-
-  await dbConnect(); // mongo connect.
-  const res = await User.findOne({ $or: [{ name: session.user.name }, { email: session.user.email }] });
-  
-  if (res) {
-    await client.json.set(session.user.email,"$",res); // set in cache here
-
-    redirect("/dashboard");
-    
-  } else {
-    user = await User.create({
-      name: session.user.name || "",
-      email: session.user.email || "",
-      profile_url: session.user.image || "",
-    });
-    await client.json.set(session.user.email,"$",user); // create user set in cache send him to dashboard.
-    redirect("/dashboard");
   }
-}
-}
   
   return (
     <>

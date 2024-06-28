@@ -5,9 +5,7 @@ import Stories from '@/components/Dashboard/Story';
 import TrendNews from '@/components/Dashboard/TrendNews';
 import NavBarDashBoard from '@/components/NavBarDashBoard';
 import { user_obj } from '@/components/auth/Signup';
-import dbConnect from '@/lib/mongoConnect';
-import { client } from '@/lib/redisConnect';
-import { User } from '@/models/user_model';
+import { axiosInstance } from '@/lib/axiosInstance';
 import { redirect } from 'next/navigation';
 import React from 'react';
 
@@ -18,29 +16,20 @@ export default async function Page() {
   let user={};
 
 if (session && session.user &&  session.user.email && session.user.email?.length>0) {
-
-
-  const user_exists=await client.json.get(session.user.email);
-
-  if(user_exists){  // cache hit user exists.
-    
-    user=user_exists;
-
+  try{
+ const res=await axiosInstance.post("api/user/findUser",{email:session.user.email,name:session.user.name});
+ if(res.status==200){
+  user=res.data.user;
+  
+}
+else{
+  redirect("/");
+}
   }
-  else{    // cache miss
-
-    await dbConnect(); // mongo connect.
-    const res = await User.findOne({ $or: [{ name: session.user.name }, { email: session.user.email }] });
-    
-    if (res) {
-      await client.json.set(session.user.email,"$",res); // set in cache here 
-      user=res; 
-    } else {
-      redirect("/");
-    }
+  catch(e){
+  console.log("error in dashboard/page.tsx line 30")
   }
-
-
+ 
 }
 else{
   redirect("/");
