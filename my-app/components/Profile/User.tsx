@@ -33,7 +33,7 @@ export default function User() {
           <div className="flex justify-between mt-2">
             <div className="text-center">
               <p className="text-gray-600">1 profile view</p>
-              <p className="text-gray-400 text-sm">Discover who's viewed your profile.</p>
+              <p className="text-gray-400 text-sm">Discover who viewed your profile.</p>
             </div>
             <div className="text-center">
               <p className="text-gray-600">0 post impressions</p>

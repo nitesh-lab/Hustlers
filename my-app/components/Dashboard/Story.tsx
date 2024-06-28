@@ -3,7 +3,7 @@
 import React from 'react';
 import { useSwipeable } from 'react-swipeable';
 
-const StoryItem = ({ story }) => {
+const StoryItem = ({ story }:{story:{live?:boolean,name:string,image:string,unseen:boolean}}) => {
   return (
     <div className="flex flex-col items-center mx-2">
       <div className="relative">
@@ -56,7 +56,7 @@ const Stories = () => {
     onSwipedRight: () => {
       document.getElementById('story-container')?.scrollBy({ left: -200, behavior: 'smooth' });
     },
-    preventDefaultTouchmoveEvent: true,
+    // preventDefaultTouchmoveEvent: true,
     trackMouse: true,
   });
 

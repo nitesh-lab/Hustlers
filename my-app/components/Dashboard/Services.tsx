@@ -8,7 +8,7 @@ export default function Services() {
   const active = useAppSelector((state) => state.dashboard.active);
   const dispatch = useAppDispatch();
 
-  function handleNavClick(navItem) {
+  function handleNavClick(navItem: "home" | "network" | "messaging" | "jobs") {
     dispatch(active_action(navItem));
   }
 

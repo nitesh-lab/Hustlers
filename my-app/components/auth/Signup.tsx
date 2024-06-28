@@ -46,7 +46,7 @@ export interface user_obj{
   }
 
 
-  const onSubmit = (data) => {
+  const onSubmit = (data:{}) => {
     console.log(data);
   };
 
@@ -159,7 +159,7 @@ export interface user_obj{
         </div>
         <div className="mt-6 text-center">
           <p className="text-gray-400">
-            By signing up, you are creating a Hustlers account, and you agree to Hustlers's{' '}
+            By signing up, you are creating a Hustlers account, and you agree to Hustlers{' '}
             <a href="#" className="text-blue-500 hover:underline">
               Terms of Use
             </a>{' '}

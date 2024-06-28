@@ -84,7 +84,7 @@ import React, { useEffect } from 'react'
                                         <path
                                             d="M30.7 42c0 6.1 12.6 7 12.6 22 0 11-7.9 19.2-18.9 19.2C12.7 83.1 5 72.6 5 61.5c0-19.2 18-44.6 29.2-44.6 2.8 0 7.9 2 7.9 5.4S30.7 31.6 30.7 42zM82.4 42c0 6.1 12.6 7 12.6 22 0 11-7.9 19.2-18.9 19.2-11.8 0-19.5-10.5-19.5-21.6 0-19.2 18-44.6 29.2-44.6 2.8 0 7.9 2 7.9 5.4S82.4 31.6 82.4 42z" />
                                     </svg>
-                                    <p className="mt-2 text-base text-white">I'm loving these templates! Very nice
+                                    <p className="mt-2 text-base text-white">I am loving these templates! Very nice
                                         features and layouts.
                                     </p>
                                 </div>

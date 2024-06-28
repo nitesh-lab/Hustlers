@@ -16,7 +16,7 @@ const CreatePost = () => {
         className="flex-grow px-4 py-2 text-left text-gray-600 bg-gray-100 rounded-full"
         onClick={openModal}
       >
-        What's happening today?
+        {"What's"} happening today?
       </button>
 
       {modalOpen && <PostModal closeModal={closeModal} />}

@@ -1,11 +1,11 @@
 import Image from 'next/image';
 import React, { useState } from 'react';
 
-const PostModal = ({ closeModal }) => {
+const PostModal = ({ closeModal}:{closeModal:()=>void}) => {
   const [postText, setPostText] = useState('');
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState("");
 
-  const handleImageUpload = (e) => {
+  const handleImageUpload = (e:any) => {
     setImage(URL.createObjectURL(e.target.files[0]));
   };
 
