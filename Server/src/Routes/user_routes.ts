@@ -1,5 +1,5 @@
 import {Router} from "express";
-import { Check_CreateUser, CreatePost, FindUser } from "../Controllers/user_controller";
+import { Check_CreateUser, CreatePost, FindUser, FindUsers } from "../Controllers/user_controller";
 import { upload } from "../utils/multer";
 
 export const user_router=Router();
@@ -7,3 +7,4 @@ export const user_router=Router();
 user_router.route("/create").post(Check_CreateUser);
 user_router.route("/findUser").post(FindUser);
 user_router.route("/post").post(upload.single("image"),CreatePost);
+user_router.route("/connections").post(FindUsers);

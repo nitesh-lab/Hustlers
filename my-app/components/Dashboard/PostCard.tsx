@@ -40,13 +40,13 @@ export default function PostCard<T extends UserProps>({ user }: PostCardProps<T>
     const {posts}=usePostContext();
   return (
     <div className='w-[100%]'>
-       <Card 
+       {posts.length==0 &&<Card 
         likeCount={10} // Example like count
         commentCount={5} // Example comment count
         imageUrl={"/Images/logo.png"} 
         content={"Welcome Message."} 
         user={{ name: "nitesh", profilePicture: user.profile_url, isOnline: true }}
-      />
+      />}
       {posts.map((e,i)=>{
 
         return  <Card 

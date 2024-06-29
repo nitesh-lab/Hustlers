@@ -125,3 +125,50 @@ export async function CreatePost(req: Request, res: Response) {
     res.status(500).json({ message: "Error creating post" });
   }
 }
+
+
+
+export async function FindUsers(req: Request, res: Response) {
+
+  const { name } = req.body;
+
+  try {
+    // Check if the results are cached
+    const cachedResults = await client.get(`users:${name}`);  
+    
+    if (cachedResults) {
+      // Cache hit
+      return res.status(200).json({ users: JSON.parse(cachedResults) });
+    }
+
+    const users = await User.find({
+      name: { $regex: `^${name}`, $options: 'i' } // Case-insensitive match from start
+    }, {
+      _id: 1, // Include only _id field (adjust for your needs)
+      name: 1,
+      email: 1,
+      profile_url: 1,
+    }).limit(5); // Limit to 5 results for performance
+    
+    if (users.length > 0) {
+      // Format the results
+      const formattedUsers = users.map(user => ({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        profile_url: user.profile_url
+      }));
+
+      // Cache the results for future queries
+      await client.json.set(`users:${name}`,"$",{users:formattedUsers})
+      await client.expireAt(`users:${name}`,3600)
+
+      return res.status(200).json({ users: formattedUsers });
+    } else {
+      return res.status(404).json({ message: "No users found" });
+    }
+  } catch (error) {
+    console.error('Error in FindUsers:', error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+}
