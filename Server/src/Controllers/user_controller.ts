@@ -102,8 +102,20 @@ export async function CreatePost(req: Request, res: Response) {
     user.Posts.push(savedPost._id);
     await user.save();
 
+    const postResponse = {
+      likeCount: 0, // Example like count
+      commentCount:0, // Example comment count
+      imageUrl: url, // Use the uploaded image URL
+      content: postText, // Use the provided post text
+      user: {
+        name: user.name, // Use the user's name
+        profilePicture: user.profile_url|| "", // Use the user's profile picture if available
+        isOnline: user.isActive, // Use the user's online status
+      },
+    };
+
     // Send successful response.
-    return res.status(201).json({ message: "Post created successfully"});
+    return res.status(201).json({ user:postResponse});
   }
   else{
     return res.status(200).json({ message: "Post created Unsuccessfully"});

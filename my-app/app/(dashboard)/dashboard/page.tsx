@@ -1,3 +1,4 @@
+import {PostProvider}  from '../../../Context/PostProvider';
 import { auth } from '../../../auth';
 import CreatePost from "../../../components/Dashboard/CreatePost";
 import PostCard from '../../../components/Dashboard/PostCard';
@@ -42,8 +43,10 @@ export default async function Page() {
 
         {/* 2nd section */}
         <div className="lg:col-start-2 lg:col-end-5">
+          <PostProvider>
           <CreatePost user={(user) as user_obj} />
           <PostCard user={(user) as user_obj} />
+          </PostProvider>
         </div>
 
         {/* 3rd section */}

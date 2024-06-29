@@ -6,6 +6,7 @@ import { AiOutlineLike } from 'react-icons/ai';
 import { FaRegComment } from 'react-icons/fa';
 import { IoMdSend } from 'react-icons/io';
 import { user_obj } from '../auth/Signup';
+import { usePostContext } from '../../Context/PostProvider';
 
 interface UserProps extends user_obj {
   profile_url: string;
@@ -35,29 +36,29 @@ interface Comment {
 }
 
 export default function PostCard<T extends UserProps>({ user }: PostCardProps<T>) {
+
+    const {posts}=usePostContext();
   return (
     <div className='w-[100%]'>
-      <Card 
+       <Card 
         likeCount={10} // Example like count
         commentCount={5} // Example comment count
         imageUrl={"/Images/logo.png"} 
         content={"Welcome Message."} 
         user={{ name: "nitesh", profilePicture: user.profile_url, isOnline: true }}
       />
-      {/* <Card 
-        likeCount={10} // Example like count
-        commentCount={5} // Example comment count
-        imageUrl={"/Images/logo.png"} 
-        content={"Welcome Message."} 
-        user={{ name: "nitesh", profilePicture: user.profile_url, isOnline: true }}
+      {posts.map((e,i)=>{
+
+        return  <Card 
+        key={i}
+        likeCount={e.likeCount} // Example like count
+        commentCount={e.commentCount} // Example comment count
+        imageUrl={e.imageUrl} 
+        content={e.content} 
+        user={{ name:e.user.name, profilePicture:e.user.profilePicture, isOnline:e.user.isOnline }}
       />
-      <Card 
-        likeCount={10} // Example like count
-        commentCount={5} // Example comment count
-        imageUrl={"/Images/logo.png"} 
-        content={"Welcome Message."} 
-        user={{ name: "nitesh", profilePicture: user.profile_url, isOnline: true }}
-      /> */}
+      })}
+     
     </div>
   );
 }

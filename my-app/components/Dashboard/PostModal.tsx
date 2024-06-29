@@ -1,17 +1,19 @@
 import Image from 'next/image';
 import React, { useState } from 'react';
 import { axiosInstance } from '../../lib/axiosInstance';
+import { usePostContext } from '../../Context/PostProvider';
 
 
 const PostModal = ({ closeModal, id="26" }: { closeModal: () => void, id: string }) => {
+
+     const {setPosts}=usePostContext();
+
   const [postText, setPostText] = useState('');
   const [image, setImage] = useState<Blob>();
   const [error, setError] = useState('');
 
   const handleImageUpload = (e:any) => {
    // setImage(URL.createObjectURL(e.target.files[0]));
-   console.log(e.target.files)
-   console.log(e.target.files[0])
     setImage(e.target.files[0]);
   };
 
@@ -25,7 +27,8 @@ const PostModal = ({ closeModal, id="26" }: { closeModal: () => void, id: string
       formData.append('image',image);
       
       try {
-        await axiosInstance.post('api/user/post',formData);
+       const res=await axiosInstance.post('api/user/post',formData);
+       setPosts((s)=>[res.data.user,...s])
         closeModal();
       } catch (error) {
         console.error("Error posting data:", error);
