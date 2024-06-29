@@ -1,6 +1,6 @@
 "use client";
-import { active_action } from '@/lib/Slices/DashBoardSlice';
-import { useAppDispatch, useAppSelector } from '@/lib/reduxhooks';
+import { active_action } from '../../lib/Slices/DashBoardSlice';
+import { useAppDispatch, useAppSelector } from '../../lib/reduxhooks';
 import React from 'react';
 import { FaBriefcase, FaHome, FaComments, FaNetworkWired } from 'react-icons/fa';
 

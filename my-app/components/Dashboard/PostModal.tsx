@@ -1,22 +1,45 @@
 import Image from 'next/image';
 import React, { useState } from 'react';
+import { axiosInstance } from '../../lib/axiosInstance';
 
-const PostModal = ({ closeModal}:{closeModal:()=>void}) => {
+
+const PostModal = ({ closeModal, id="26" }: { closeModal: () => void, id: string }) => {
   const [postText, setPostText] = useState('');
-  const [image, setImage] = useState("");
+  const [image, setImage] = useState<Blob>();
+  const [error, setError] = useState('');
 
   const handleImageUpload = (e:any) => {
-    setImage(URL.createObjectURL(e.target.files[0]));
+   // setImage(URL.createObjectURL(e.target.files[0]));
+   console.log(e.target.files)
+   console.log(e.target.files[0])
+    setImage(e.target.files[0]);
   };
 
-  const handlePost = () => {
-    // Handle post creation logic here
-    closeModal();
+  const handlePost = async () => {
+    
+    if (postText && image) {
+      const formData = new FormData();
+
+      formData.append('text',postText);
+      formData.append('id', id);
+      formData.append('image',image);
+      
+      try {
+        await axiosInstance.post('api/user/post',formData);
+        closeModal();
+      } catch (error) {
+        console.error("Error posting data:", error);
+      }
+    } else {
+      setError('Please fill out both the text and image fields.');
+    }
   };
+
+  const isPostDisabled = !(postText && image);
 
   return (
     <div
-      className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50"
+      className="fixed inset-0 top-[5rem] bg-gray-800 bg-opacity-50 flex items-center justify-center z-50"
       onClick={closeModal}
     >
       <div
@@ -36,14 +59,15 @@ const PostModal = ({ closeModal}:{closeModal:()=>void}) => {
           value={postText}
           onChange={(e) => setPostText(e.target.value)}
         ></textarea>
+        {error && <div className="text-red-500 mb-4">{error}</div>}
         {image && (
           <div className="mb-4 flex justify-center">
             <Image
-              src={image}
+              src={URL.createObjectURL(image)}
               alt="Uploaded"
               height={48}
               width={48}
-              className="  w-[200px] h-[150px]  sm:max-w-full  sm:max-h-64 md:max-h-80 object-cover rounded-lg"
+              className="w-[200px] h-[150px] sm:max-w-full sm:max-h-64 md:max-h-80 object-cover rounded-lg"
             />
           </div>
         )}
@@ -72,7 +96,8 @@ const PostModal = ({ closeModal}:{closeModal:()=>void}) => {
           </button>
           <button
             onClick={handlePost}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg"
+            className={`px-4 py-2 rounded-lg ${isPostDisabled ? 'bg-gray-500 cursor-not-allowed' : 'bg-blue-500 text-white'}`}
+            disabled={isPostDisabled}
           >
             Post
           </button>

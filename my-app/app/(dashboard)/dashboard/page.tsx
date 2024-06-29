@@ -1,11 +1,11 @@
-import { auth } from '@/auth';
-import CreatePost from '@/components/Dashboard/CreatePost';
-import PostCard from '@/components/Dashboard/PostCard';
-import Stories from '@/components/Dashboard/Story';
-import TrendNews from '@/components/Dashboard/TrendNews';
-import NavBarDashBoard from '@/components/NavBarDashBoard';
-import { user_obj } from '@/components/auth/Signup';
-import { axiosInstance } from '@/lib/axiosInstance';
+import { auth } from '../../../auth';
+import CreatePost from "../../../components/Dashboard/CreatePost"
+import PostCard from '../../../components/Dashboard/PostCard';
+import Stories from '../../../components/Dashboard/Story';
+import TrendNews from '../../../components/Dashboard/TrendNews';
+import NavBarDashBoard from '../../../components/NavBarDashBoard';
+import { user_obj } from '../../../components/auth/Signup';
+import { axiosInstance } from "../../../lib/axiosInstance"
 import { redirect } from 'next/navigation';
 import React from 'react';
 
@@ -46,7 +46,7 @@ else{
 
       {/* 2nd section */}
       <div className="col-start-2 col-end-5">
-        <CreatePost/>
+        <CreatePost user={(user) as user_obj}/>
         <PostCard  user={(user)as user_obj}/>
       </div>
 

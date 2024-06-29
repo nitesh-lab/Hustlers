@@ -4,8 +4,8 @@ import Link from 'next/link';
 import { CgProfile } from 'react-icons/cg';
 import { MdLogout, MdOutlineNotifications } from 'react-icons/md';
 import { FaComments, FaNetworkWired } from 'react-icons/fa';
-import { useAppDispatch, useAppSelector } from '@/lib/reduxhooks';
-import { active_action } from '@/lib/Slices/DashBoardSlice';
+import { useAppDispatch, useAppSelector } from '../../lib/reduxhooks';
+import { active_action } from '../../lib/Slices/DashBoardSlice';
 import Image from 'next/image';
 
 export default function DropDown({image}:{image:string}) {

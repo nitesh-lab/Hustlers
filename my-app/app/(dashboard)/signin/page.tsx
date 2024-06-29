@@ -1,6 +1,6 @@
-import { auth } from '@/auth'
-import { LoginForm } from '@/components/auth/SignIn'
-import { axiosInstance } from '@/lib/axiosInstance'
+import { auth } from "../../../auth"
+import { LoginForm } from "../../../components/auth/SignIn"
+import { axiosInstance } from "../../../lib/axiosInstance"
 import { redirect } from 'next/navigation'
 import React from 'react'
 

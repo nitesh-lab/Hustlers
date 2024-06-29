@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { useForm, Controller } from 'react-hook-form';
 import { signIn } from 'next-auth/react';
-import { useAppDispatch, useAppSelector } from '@/lib/reduxhooks';
+import { useAppDispatch, useAppSelector } from '../../lib/reduxhooks';
 import { useRouter } from 'next/navigation';
 
 export interface user_obj{
@@ -13,28 +13,12 @@ export interface user_obj{
   _id:string,
   profile_url:string
 }
- 
-// export default function SignUpForm<T extends user_obj>({user}:{user:T}) {
-
 
  export default function SignUpForm() {
   const loggedIn=useAppSelector((s)=>s.auth.isLoggedIn);
   const dispatch=useAppDispatch();
   const { control, handleSubmit, formState: { errors } } = useForm();
   const router = useRouter();
-
-  // useEffect(() => {
-  //   if (!loggedIn && "name" in user && user.name.length>0) {
-  //     dispatch(loggedIn_action(user));
-  //   }
-  //   else if(loggedIn){
-  //     router.push("/dashboard");
-  //   }
-  //   else{
-  //     return;
-  //   }
-  // }, [user,loggedIn,dispatch,router]);
-
 
   async function handleLogin() {
     try{

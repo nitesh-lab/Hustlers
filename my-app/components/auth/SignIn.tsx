@@ -4,9 +4,6 @@ import { signIn } from 'next-auth/react';
 
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { useRouter } from 'next/navigation';
-import { useAppDispatch, useAppSelector } from '@/lib/reduxhooks';
-import { loggedIn_action } from '@/lib/Slices/authSlice';
 
 // export  function LoginForm<T extends user_obj>({user}:{user:T}){
 

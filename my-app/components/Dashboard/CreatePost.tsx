@@ -2,8 +2,10 @@
 
 import React, { useState } from 'react';
 import PostModal from './PostModal';
+import { user_obj } from '../auth/Signup';
 
-const CreatePost = () => {
+const CreatePost = ({user}:{user:user_obj}) => {
+
   const [modalOpen, setModalOpen] = useState(false);
 
   const openModal = () => setModalOpen(true);
@@ -19,7 +21,7 @@ const CreatePost = () => {
         {"What's"} happening today?
       </button>
 
-      {modalOpen && <PostModal closeModal={closeModal} />}
+      {modalOpen && <PostModal id={user._id} closeModal={closeModal} />}
     </div>
   );
 };
