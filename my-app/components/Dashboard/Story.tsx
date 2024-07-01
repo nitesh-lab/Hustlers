@@ -63,7 +63,7 @@ const Stories = () => {
   return (
     <div {...handlers} id="story-container" className="flex space-x-4 p-4 overflow-x-auto no-scrollbar">
       {stories.map(story => (
-        <StoryItem key={story.id} story={story} />
+        <StoryItem key={Math.random()} story={story} />
       ))}
     </div>
   );

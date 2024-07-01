@@ -1,5 +1,4 @@
 "use client"
-
 import Image from 'next/image';
 import React, { useState, useRef, useEffect, KeyboardEvent } from 'react';
 import { AiOutlineLike } from 'react-icons/ai';
@@ -7,6 +6,7 @@ import { FaRegComment } from 'react-icons/fa';
 import { IoMdSend } from 'react-icons/io';
 import { user_obj } from '../auth/Signup';
 import { usePostContext } from '../../Context/PostProvider';
+import { axiosInstance } from '@/lib/axiosInstance';
 
 interface UserProps extends user_obj {
   profile_url: string;
@@ -26,6 +26,9 @@ interface CardProps {
   imageUrl?: string;
   likeCount?: number;
   commentCount?: number;
+  post_id:string,
+  uid:string,
+  client_user:user_obj
 }
 
 interface Comment {
@@ -37,45 +40,62 @@ interface Comment {
 
 export default function PostCard<T extends UserProps>({ user }: PostCardProps<T>) {
 
-    const {posts}=usePostContext();
+  const { posts } = usePostContext();
   return (
     <div className='w-[100%]'>
-       {posts.length==0 &&<Card 
-        likeCount={10} // Example like count
-        commentCount={5} // Example comment count
-        imageUrl={"/Images/logo.png"} 
-        content={"Welcome Message."} 
+      {posts.length === 0 && <Card 
+        likeCount={10}
+        commentCount={5}
+        imageUrl={"/Images/logo.png"}
+        content={"Welcome Message."}
         user={{ name: "nitesh", profilePicture: user.profile_url, isOnline: true }}
+        post_id='-1'
+        uid='-1'
+        client_user={{name:"",email:"",_id:"",profile_url:""}}
+        
       />}
-      {posts.map((e,i)=>{
-
-        return  <Card 
-        key={i}
-        likeCount={e.likeCount} // Example like count
-        commentCount={e.commentCount} // Example comment count
-        imageUrl={e.imageUrl} 
-        content={e.content} 
-        user={{ name:e.user.name, profilePicture:e.user.profilePicture, isOnline:e.user.isOnline }}
-      />
+      
+      {posts.map((e, i) => {
+        return <Card 
+          key={i}
+          uid={user._id}
+          likeCount={e.likeCount}
+          commentCount={e.commentCount}
+          imageUrl={e.imageUrl}
+          content={e.content}
+          user={{ name: e.user.name, profilePicture: e.user.profilePicture, isOnline: e.user.isOnline }}
+          post_id={e.post_id}
+          client_user={user}
+        />
       })}
-     
     </div>
   );
 }
 
 function Card({
-  user: { name, profilePicture, isOnline }, // Destructure user object
+  user: { name, profilePicture, isOnline },
+  client_user={name:"",_id:"",profile_url:"",email:""},
   content,
+  uid,
   imageUrl,
-  likeCount = 0, // Set default like count
-  commentCount = 0, // Set default comment count
+  likeCount = 0,
+  commentCount = 0,
+  post_id
 }: CardProps) {
+
+  
   const [showComments, setShowComments] = useState(false);
+  
   const [comments, setComments] = useState<Comment[]>([
     { id: 1, name: "Ray Cass", text: "We will close deals faster with a buyer-friendly mutual action plan." },
     { id: 2, name: "Molly Austin", text: "And templatize a repeatable playbook for every rep to follow on every deal." }
   ]);
+  
   const [commentText, setCommentText] = useState('');
+  
+  const [hasLiked, setHasLiked] = useState(false);
+  
+  const [canComment, setCanComment] = useState(true);
 
   const commentRef = useRef<HTMLDivElement>(null);
 
@@ -83,10 +103,22 @@ function Card({
     setShowComments(!showComments);
   };
 
+  const handleLike = () => {
+    if (!hasLiked) {
+      
+     axiosInstance.post('api/user/like', { post_id: post_id,uid:uid })
+      setHasLiked(true);
+
+    }
+  };
+
   const addComment = () => {
-    if (commentText.trim()) {
-      setComments([...comments, { id: comments.length + 1, name: "New User", text: commentText }]);
+    if (commentText.trim() && canComment) {
+      axiosInstance.post('api/user/comment', { post_id: post_id, text: commentText,uid:uid })
+      setComments([...comments, { id: comments.length + 1, profilePicture:client_user.profile_url ,name:client_user.name, text: commentText }]);
       setCommentText('');
+      setCanComment(false);
+      setTimeout(() => setCanComment(true), 3000); // Set a timer to allow commenting again after 3 seconds
     }
   };
 
@@ -116,7 +148,6 @@ function Card({
   return (
     <div className="w-[100%] relative">
       <div className="max-w-[90%] mx-[5%] sm:max-w-lg my-[1rem] sm:my-[1.5rem] sm:mx-auto bg-white border rounded-lg shadow-md">
-        {/* Profile Section */}
         <div className="flex items-center p-4">
           <div className="w-10 h-10 rounded-full bg-gray-300">
             {profilePicture && (
@@ -136,13 +167,11 @@ function Card({
           <button className="ml-auto text-blue-600 font-medium">+ Follow</button>
         </div>
 
-        {/* Content Section */}
         <div className="px-4 pb-4">
           <p>{content}</p>
           <div className="text-gray-600">+ {likeCount} Likes </div>
         </div>
 
-        {/* Image Section (if provided) */}
         {imageUrl && (
           <div className="relative">
             <Image src={imageUrl} alt="Post image" className="w-full" width={500} height={300} />
@@ -153,9 +182,8 @@ function Card({
           </div>
         )}
 
-        {/* Interaction Buttons */}
         <div className="flex justify-around border-t border-gray-300 py-2">
-          <button className="flex items-center text-gray-600 hover:text-blue-600">
+          <button className={`flex items-center ${hasLiked ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'}`} onClick={handleLike} disabled={hasLiked}>
             <AiOutlineLike className="mr-1" /> Like
           </button>
           <button className="flex items-center text-gray-600 hover:text-blue-600" onClick={toggleComments}>
@@ -166,7 +194,6 @@ function Card({
           </button>
         </div>
 
-        {/* Comment Section */}
         {showComments && (
           <div className="absolute top-0 left-0 w-full h-full bg-white bg-opacity-95 border rounded-lg shadow-md p-4 z-10 overflow-y-auto" 
           ref={commentRef}>
@@ -179,10 +206,12 @@ function Card({
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
                 onKeyDown={handleKeyDown}
+                disabled={!canComment}
               />
               <button 
                 onClick={addComment}
-                className="p-2 bg-blue-600 text-white rounded-lg">
+                className="p-2 bg-blue-600 text-white rounded-lg"
+                disabled={!canComment}>
                 Send
               </button>
             </div>

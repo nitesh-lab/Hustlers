@@ -1,4 +1,3 @@
-
 "use client";
 import React, { useState, createContext, useContext, ReactNode } from "react";
 
@@ -7,6 +6,7 @@ interface Post_Type {
   commentCount: number;
   imageUrl: string;
   content: string;
+  post_id:string,
   user: {
     name: string;
     profilePicture: string;

@@ -3,42 +3,52 @@ import React, { useState } from 'react';
 import { axiosInstance } from '../../lib/axiosInstance';
 import { usePostContext } from '../../Context/PostProvider';
 
+const Loader = () => {
+  return (
+    <div className="flex justify-center items-center">
+      <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
+    </div>
+  );
+};
 
-const PostModal = ({ closeModal, id="26" }: { closeModal: () => void, id: string }) => {
-
-     const {setPosts}=usePostContext();
-
+const PostModal = ({ closeModal, id = "26" }: { closeModal: () => void, id: string }) => {
+  const { setPosts } = usePostContext();
   const [postText, setPostText] = useState('');
   const [image, setImage] = useState<Blob>();
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleImageUpload = (e:any) => {
-   // setImage(URL.createObjectURL(e.target.files[0]));
+  const handleImageUpload = (e: any) => {
     setImage(e.target.files[0]);
   };
 
   const handlePost = async () => {
-    
-    if (postText && image) {
-      const formData = new FormData();
-
-      formData.append('text',postText);
-      formData.append('id', id);
-      formData.append('image',image);
-      
-      try {
-       const res=await axiosInstance.post('api/user/post',formData);
-       setPosts((s)=>[res.data.user,...s])
-        closeModal();
-      } catch (error) {
-        console.error("Error posting data:", error);
-      }
-    } else {
+    if (!postText || !image) {
       setError('Please fill out both the text and image fields.');
+      return;
+    }
+
+    if (loading) return;
+
+    setLoading(true);
+
+    const formData = new FormData();
+    formData.append('text', postText);
+    formData.append('id', id);
+    formData.append('image', image);
+
+    try {
+      const res = await axiosInstance.post('api/user/post', formData);
+      setPosts((s) => [res.data.user, ...s]);
+      closeModal();
+    } catch (error) {
+      console.error("Error posting data:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const isPostDisabled = !(postText && image);
+  const isPostDisabled = !postText || !image || loading;
 
   return (
     <div
@@ -102,7 +112,7 @@ const PostModal = ({ closeModal, id="26" }: { closeModal: () => void, id: string
             className={`px-4 py-2 rounded-lg ${isPostDisabled ? 'bg-gray-500 cursor-not-allowed' : 'bg-blue-500 text-white'}`}
             disabled={isPostDisabled}
           >
-            Post
+            {loading ? <Loader /> : "Post"}
           </button>
         </div>
       </div>

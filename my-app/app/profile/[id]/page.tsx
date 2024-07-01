@@ -7,10 +7,14 @@ import { redirect } from 'next/navigation';
 export default async function page({params}:{params:{id:string}}) {
 
   const {id}=params;
-  let user:{data:user_obj}={data:{name:"",email:"",profile_url:"",_id:""}}
+ 
+  let user:user_obj={name:"",email:"",profile_url:"",_id:""}
   if(id.length==24){
-  user=await axiosInstance.post("/api/user/findUser",{_id:id});
-  console.log(user.data);
+ 
+ 
+  const res=await axiosInstance.post("/api/user/findUser",{_id:id});
+  user=res.data.user
+ 
   }
   else{
     redirect("/")
@@ -18,7 +22,7 @@ export default async function page({params}:{params:{id:string}}) {
 
   return (
     <div>
-        <UserCard user={(user.data) as user_obj } />
+        <UserCard user={user as user_obj } />
     </div>
   )
 }
