@@ -1,17 +1,20 @@
 import React from 'react'
+import { user_obj } from '../auth/Signup'
 
-export default function User() {
+export default function User({user}:{user:user_obj}) {
+  console.log("server")
+  
   return (
    <>
     <div className="col-span-1 lg:col-start-1 lg:col-end-5  mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
         <div className="bg-gray-200 h-24 w-full"></div>
         <div className="flex justify-center -mt-12">
           <div className="bg-white border border-gray-200 rounded-full overflow-hidden">
-            <img src="path-to-placeholder-image" alt="profile" className="h-24 w-24 object-cover" />
+            <img src={user.user.profile_url} alt="profile" className="h-24 w-24 object-cover" />
           </div>
         </div>
         <div className="text-center px-6 py-4">
-          <h2 className="text-xl font-medium">S T</h2>
+          <h2 className="text-xl font-medium">{user.user.name}</h2>
           <p className="text-gray-600">Attended Bhavans College</p>
           <p className="text-gray-600">Mumbai, Maharashtra, India</p>
           <div className="mt-4">

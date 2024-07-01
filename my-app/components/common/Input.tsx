@@ -1,6 +1,7 @@
 
-
+"use client"
 import { axiosInstance } from '@/lib/axiosInstance';
+import { useRouter } from 'next/navigation';
 import React, { useState, useEffect, ChangeEvent } from 'react';
 import { FaSearch, FaTimes } from 'react-icons/fa';
 
@@ -77,13 +78,7 @@ export default function Input() {
         <ul className="absolute z-[10] w-[80%] mr-[10%] sm:w-[300px] bg-white border border-gray-300 rounded-lg shadow-md mt-1 max-h-60 overflow-y-auto">
           {results.length > 0 ? (
             results.map((result, index) => (
-              <li key={index} className="flex my-[1rem] items-center p-2 hover:bg-gray-100">
-                <img src={result.profile_url} alt={result.name} className="w-10 h-10 rounded-full mr-3" />
-                <div>
-                  <p className="text-sm font-semibold">{result.name}</p>
-                  <p className="text-xs text-gray-500">{result.email}</p>
-                </div>
-              </li>
+            <Users result={result} key={index} />
             ))
           ) : (
             <li className="p-4 text-center text-gray-500">No users found</li>
@@ -92,4 +87,18 @@ export default function Input() {
       )}
     </div>
   );
+}
+
+function Users({result}:{result:users}){
+
+  const router=useRouter();
+    return (
+      <li  onClick={()=>router.push(`profile/${result._id}`)} className="flex my-[1rem] items-center p-2 hover:bg-gray-100">
+      <img src={result.profile_url} alt={result.name} className="w-10 h-10 rounded-full mr-3" />
+      <div>
+        <p className="text-sm font-semibold">{result.name}</p>
+        <p className="text-xs text-gray-500">{result.email}</p>
+      </div>
+    </li>
+    )
 }

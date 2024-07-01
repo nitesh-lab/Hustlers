@@ -10,20 +10,19 @@ export async function Check_CreateUser(req:Request,res:Response){
 
     let user={}
 
-const user_exists=await client.json.get(email);
+// const user_exists=await client.json.get(email);
 
-   if(user_exists){  // cache hit user exists.
-    return res.status(200).json({"message":"done"});
-   }
-
-   else{    // cache miss
+//    if(user_exists){  // cache hit user exists.
+//     return res.status(200).json({"message":"done"});
+//    }
+   // cache miss
     const response = await User.findOne<UserData>({ $or: [{ name: name }, { email:email }] });
   
    if (response) {
-    const {_id,profile_url,name,isActive,lastSeen}=response;
+     const {_id,profile_url,name,isActive,lastSeen}=response;
 
-    await client.json.set(email,"$",{_id,profile_url,name,isActive,lastSeen}); // set in cache here 
-    //  await client.json.set(email,"$",response); // set in cache here
+    // // await client.json.set(email,"$",{_id,profile_url,name,isActive,lastSeen}); // set in cache here 
+     await client.json.set(JSON.stringify(_id),"$",{_id,profile_url,name,isActive,lastSeen}); // set in cache here
 
     return res.status(200).json({"message":"done"})
    }
@@ -36,43 +35,94 @@ const user_exists=await client.json.get(email);
       lastSeen:Date.now().toString(),
     });
 
-    await client.json.set(email,"$",user); // create user set in cache send him to dashboard.
+    // await client.json.set(email,"$",user); // create user set in cache send him to dashboard.
     return res.status(200).json({"message":"done"})
-
-   }
 }
 }
 
-export async function FindUser(req:Request,res:Response) {
+// export async function FindUser(req:Request,res:Response) {
   
-  const {email,name}=req.body;
+//   const {email,name,_id}=req.body;
 
-  let user={}
+//   let user={}
 
-  const user_exists=await client.json.get(email);
-  
-  if(user_exists){  // cache hit user exists.
-    user=user_exists;
-    return res.status(200).json({"user":user});
-  }
-  else{    // cache miss
-    const response=await User.findOne<UserData>({ $or: [{ name: name }, { email: email }] });
+//   console.log(_id)
+//   if(_id){
+//    const user_exists=await client.json.get(JSON.stringify(_id)); 
+//    if(user_exists){
+//     return res.status(200).json({"user":user});
+//    }
+//    else{
+//     const response=await User.findOne<UserData>({_id:_id});
+
+//     if (response) {
+//       const {_id,profile_url,name,isActive,lastSeen}=response;
+
+//      await client.json.set(JSON.stringify(_id),"$",{_id,profile_url,name,isActive,lastSeen}); // set in cache here 
+//       user=response; 
+//       return res.status(200).json({"user":user});
+//     } else {
+//       return res.status(400).json({"user":"No such User"});
+// }
+//    }
+//   }
+//   else{
+//     // cache miss
+//     const response=await User.findOne<UserData>({ $or: [{ name: name }, { email: email }] });
+
+//     if (response) {
+//       const {_id,profile_url,name,isActive,lastSeen}=response;
+//       await client.json.set(typeof(_id)!="string" ? JSON.stringify(_id):_id,"$",{_id,profile_url,name,isActive,lastSeen}); // set in cache here 
+//       console.log("_id="+_id)
+//       user=response; 
+//       return res.status(200).json({"user":user});
+//     } else {
+//       return res.status(400);
+// }
+//   }
+// }
+
+export async function FindUser(req: Request, res: Response) {
+  const { email, name, _id } = req.body;
+
+  if (_id) {
+    const userExists = await client.json.get(_id); 
+    if (userExists) {
+      return res.status(200).json({ user: userExists });
+    } else {
+      const response = await User.findOne({ _id: _id });
+
+      if (response) {
+        const { _id, profile_url, name, isActive, lastSeen } = response;
+        await client.json.set(_id.toString(), "$", { _id, profile_url, name, isActive, lastSeen }); // set in cache here 
+        return res.status(200).json({ user: response });
+      } else {
+        return res.status(400).json({ user: "No such User" });
+      }
+    }
+  } else {
+    const response = await User.findOne({ $or: [{ name: name }, { email: email }] });
 
     if (response) {
-      const {_id,profile_url,name,isActive,lastSeen}=response;
-
-      await client.json.set(email,"$",{_id,profile_url,name,isActive,lastSeen}); // set in cache here 
-      user=res; 
-      return res.status(200).json({"user":user});
+      const { _id, profile_url, name, isActive, lastSeen } = response;
+      await client.json.set(_id.toString(), "$", { _id, profile_url, name, isActive, lastSeen }); // set in cache here 
+      return res.status(200).json({ user: response });
     } else {
-      return res.status(400);
+      return res.status(400).json({ user: "No such User" });
+    }
   }
 }
-}
+
+
+
+
+
+
+
+
+
 
 export async function CreatePost(req: Request, res: Response) {
-  console.log("files")
-  console.log(req.file)
 
   try {
     // Extract data from request body
@@ -161,7 +211,7 @@ export async function FindUsers(req: Request, res: Response) {
 
       // Cache the results for future queries
       await client.json.set(`users:${name}`,"$",{users:formattedUsers})
-      await client.expireAt(`users:${name}`,3600)
+      await client.expireAt(`users:${name}`,60*60*60)
 
       return res.status(200).json({ users: formattedUsers });
     } else {
