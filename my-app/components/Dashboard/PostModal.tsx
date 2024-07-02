@@ -60,10 +60,10 @@ const PostModal = ({ closeModal, id = "26" }: { closeModal: () => void, id: stri
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center space-x-4 mb-4">
-          <div className="w-12 h-12 rounded-full bg-gray-400"></div>
+          <div className="w-12 h-12 rounded-full "><Image src={"/Images/logo.png"} width={48} height={48} alt="nope"  /></div>
           <div>
-            <div className="font-bold">Ezra Aung</div>
-            <div className="text-sm text-gray-400">@ezraaung</div>
+            <div className="font-bold">Hustlers</div>
+            <div className="text-sm text-gray-400">@hustlers</div>
           </div>
         </div>
         <textarea

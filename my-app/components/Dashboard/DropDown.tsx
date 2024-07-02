@@ -8,7 +8,7 @@ import { useAppDispatch, useAppSelector } from '../../lib/reduxhooks';
 import { active_action } from '../../lib/Slices/DashBoardSlice';
 import Image from 'next/image';
 
-export default function DropDown({image}:{image:string}) {
+export default function DropDown({image,name,email}:{image:string,name:string,email:string}) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const active = useAppSelector((state) => state.dashboard.active);
   const dispatch = useAppDispatch();
@@ -29,14 +29,14 @@ export default function DropDown({image}:{image:string}) {
       {dropdownOpen && (
         <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded shadow-lg">
           <div className="p-4">
-            <p className="font-semibold">Brooklyn Simmons</p>
-            <p className="text-sm text-gray-500">sara.cruz@example.com</p>
+            <p className="font-semibold">{name}</p>
+            {/* <p className="text-sm text-gray-500">{email}</p> */}
           </div>
           <div className="border-t border-gray-200">
-            <button onClick={() => handleNavClick('network')} className="flex md:hidden items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
+            {/* <button onClick={() => handleNavClick('network')} className="flex md:hidden items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
               <FaNetworkWired className="mr-2" />
               My Network
-            </button>
+            </button> */}
             <button onClick={() => handleNavClick('messaging')} className="flex md:hidden items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left">
               <FaComments className="mr-2" />
               Messaging

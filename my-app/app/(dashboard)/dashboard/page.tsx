@@ -1,3 +1,4 @@
+import { getPosts } from '@/lib/actions/posts';
 import {PostProvider}  from '../../../Context/PostProvider';
 import { auth } from '../../../auth';
 import CreatePost from "../../../components/Dashboard/CreatePost";
@@ -8,7 +9,7 @@ import NavBarDashBoard from '../../../components/NavBarDashBoard';
 import { user_obj } from '../../../components/auth/Signup';
 import { axiosInstance } from "../../../lib/axiosInstance";
 import { redirect } from 'next/navigation';
-import React from 'react';
+import React, { Suspense } from 'react';
 
 export default async function Page() {
 
@@ -34,10 +35,10 @@ export default async function Page() {
   return (
     <>
       <NavBarDashBoard user={(user) as user_obj} />
-      <div className='mt-[6rem] w-[90%] mx-[5%] md:w-[80%] md:mx-[10%] flex justify-center'>
+      {/* <div className='mt-[6rem] w-[90%] mx-[5%] md:w-[80%] md:mx-[10%] flex justify-center'>
         <Stories />
-      </div>
-      <div className="mt-[1rem] grid grid-cols-1 lg:grid-cols-5 gap-4">
+      </div> */}
+      <div className="mt-[6rem] grid grid-cols-1 lg:grid-cols-5 gap-4">
         {/* 1st section */}
         <div className="lg:col-start-1 lg:col-end-2"></div>
 
@@ -45,7 +46,9 @@ export default async function Page() {
         <div className="lg:col-start-2 lg:col-end-5">
           <PostProvider>
           <CreatePost user={(user) as user_obj} />
+          <Suspense fallback={<p>loading...</p>}>
           <PostCard user={(user) as user_obj} />
+          </Suspense>
           </PostProvider>
         </div>
 

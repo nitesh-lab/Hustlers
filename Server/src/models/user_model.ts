@@ -23,7 +23,6 @@ export interface UserData extends Document {
     generateSecretToken?(): string;
 }
 
-
 const UserSchema = new Schema<UserData>({
     name: { type: String, required: true },
     email: { type: String, required: true },

@@ -27,11 +27,11 @@ export default function Services() {
       </li>
       {/* The following items will only show in the dropdown on small screens */}
 
-    <li className={`md:flex items-center hidden hover:cursor-pointer ${active === 'network' ? 'border-b-2 border-black' : ''}`} onClick={() => handleNavClick('network')}>
+    {/* <li className={`md:flex items-center hidden hover:cursor-pointer ${active === 'network' ? 'border-b-2 border-black' : ''}`} onClick={() => handleNavClick('network')}>
         <FaNetworkWired className="text-gray-700 hidden md:inline" />
         <span className="hidden md:block py-2 px-3 text-gray-700">Networking</span>
         <FaNetworkWired className="text-gray-700 md:hidden" />
-      </li>
+      </li> */}
 
       
 <li className={`md:flex items-center hidden hover:cursor-pointer ${active ==="messaging" ? 'border-b-2 border-black' : ''}`} onClick={() => handleNavClick("messaging")}>

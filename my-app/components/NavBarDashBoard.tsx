@@ -18,7 +18,7 @@ export default function NavBarDashBoard<T extends user_obj>({user}:{user:T}) {
           <div className="flex items-center space-x-3 rtl:space-x-reverse">
             <ul className="font-medium flex flex-row space-x-3 rtl:space-x-reverse">
               <Services />
-              <DropDown  image={user.profile_url}/>
+              <DropDown  name={user.name} email={user.email} image={user.profile_url}/>
               </ul>
           
           </div>

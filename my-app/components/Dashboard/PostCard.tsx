@@ -7,6 +7,8 @@ import { IoMdSend } from 'react-icons/io';
 import { user_obj } from '../auth/Signup';
 import { usePostContext } from '../../Context/PostProvider';
 import { axiosInstance } from '@/lib/axiosInstance';
+import { getPosts } from '@/lib/actions/posts';
+import { time } from 'console';
 
 interface UserProps extends user_obj {
   profile_url: string;
@@ -41,6 +43,25 @@ interface Comment {
 export default function PostCard<T extends UserProps>({ user }: PostCardProps<T>) {
 
   const { posts } = usePostContext();
+  const [time,setTime]=useState(()=>{
+    return Date.now();
+  });
+
+
+  useEffect(()=>{
+
+    async function getData() {
+      if(user._id){
+     const res=await getPosts(user._id,time);
+     console.log(res)
+      }
+      else{
+        return;
+      }
+    }
+    getData(); 
+  },[user._id])
+
   return (
     <div className='w-[100%]'>
       {posts.length === 0 && <Card 
