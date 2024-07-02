@@ -39,6 +39,7 @@ const PostModal = ({ closeModal, id = "26" }: { closeModal: () => void, id: stri
 
     try {
       const res = await axiosInstance.post('api/user/post', formData);
+      console.log(res.data)
       setPosts((s) => [res.data.user, ...s]);
       closeModal();
     } catch (error) {

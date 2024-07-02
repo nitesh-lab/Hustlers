@@ -8,7 +8,6 @@ import { user_obj } from '../auth/Signup';
 import { usePostContext } from '../../Context/PostProvider';
 import { axiosInstance } from '@/lib/axiosInstance';
 import { getPosts } from '@/lib/actions/posts';
-import { time } from 'console';
 
 interface UserProps extends user_obj {
   profile_url: string;
@@ -25,13 +24,15 @@ interface CardProps {
     isOnline: boolean;
   };
   content: string;
-  imageUrl?: string;
+  photo?: string;
   likeCount?: number;
   commentCount?: number;
   post_id:string,
   uid:string,
   client_user:user_obj
 }
+
+
 
 interface Comment {
   id: number;
@@ -42,38 +43,44 @@ interface Comment {
 
 export default function PostCard<T extends UserProps>({ user }: PostCardProps<T>) {
 
-  const { posts } = usePostContext();
+  const { posts,setPosts } = usePostContext();
   const [time,setTime]=useState(()=>{
     return Date.now();
   });
 
-
   useEffect(()=>{
-
     async function getData() {
-      if(user._id){
+      if(user._id.length>0){
      const res=await getPosts(user._id,time);
-     console.log(res)
+
+     setPosts(()=>{
+      return (res?.data.map((e: { _id: any; like: string | any[]; comment: string | any[]; photo: any; posted: any; user: any; })=>{
+      return {post_id:e._id,likeCount:e.like.length,commentCount:e.comment.length,imageUrl:e.photo,time:e.posted,user:{...e.user}}
+     }) )
+    }
+    )
+  
+        // setPosts([...res?.data])
+        setTime(res?.time)
       }
       else{
         return;
       }
     }
     getData(); 
-  },[user._id])
+  },[])
 
   return (
     <div className='w-[100%]'>
       {posts.length === 0 && <Card 
         likeCount={10}
         commentCount={5}
-        imageUrl={"/Images/logo.png"}
+        photo={"/Images/logo.png"}
         content={"Welcome Message."}
         user={{ name: "nitesh", profilePicture: user.profile_url, isOnline: true }}
         post_id='-1'
         uid='-1'
         client_user={{name:"",email:"",_id:"",profile_url:""}}
-        
       />}
       
       {posts.map((e, i) => {
@@ -82,7 +89,7 @@ export default function PostCard<T extends UserProps>({ user }: PostCardProps<T>
           uid={user._id}
           likeCount={e.likeCount}
           commentCount={e.commentCount}
-          imageUrl={e.imageUrl}
+          photo={e.imageUrl}
           content={e.content}
           user={{ name: e.user.name, profilePicture: e.user.profilePicture, isOnline: e.user.isOnline }}
           post_id={e.post_id}
@@ -98,7 +105,7 @@ function Card({
   client_user={name:"",_id:"",profile_url:"",email:""},
   content,
   uid,
-  imageUrl,
+  photo,
   likeCount = 0,
   commentCount = 0,
   post_id
@@ -193,9 +200,9 @@ function Card({
           <div className="text-gray-600">+ {likeCount} Likes </div>
         </div>
 
-        {imageUrl && (
+        {photo && (
           <div className="relative">
-            <Image src={imageUrl} alt="Post image" className="w-full" width={500} height={300} />
+            <Image src={photo} alt="Post image" className="w-full" width={500} height={300} />
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="w-12 h-12 border-4 border-red-500 rounded-full absolute left-1/4 top-1/4"></div>
               <div className="w-12 h-12 border-4 border-red-500 rounded-full absolute right-1/4 top-1/4"></div>

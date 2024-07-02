@@ -1,11 +1,43 @@
-import React from 'react'
-import { user_obj } from '../auth/Signup'
+"use client";
+import React, { useState } from 'react';
+import { user_obj } from '../auth/Signup';
+import { axiosInstance } from '@/lib/axiosInstance';
 
-export default function User({user}:{user:user_obj}) {
-  
+export default function User({ user, client_email }: { user: user_obj, client_email: string }) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
+
+  const handleFollow = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axiosInstance.post('/api/user/follow', { userId: user._id, client_email: client_email });
+      if (response.status === 200) {
+        setIsFollowing(true);
+      }
+    } catch (error) {
+      console.error('Error following user:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleUnfollow = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axiosInstance.post('/api/user/unfollow', { userId: user._id, client_email: client_email });
+      if (response.status === 200) {
+        setIsFollowing(false);
+      }
+    } catch (error) {
+      console.error('Error unfollowing user:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-   <>
-    <div className="col-span-1 lg:col-start-1 lg:col-end-5  mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
+    <>
+      <div className="col-span-1 lg:col-start-1 lg:col-end-5 mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
         <div className="bg-gray-200 h-24 w-full"></div>
         <div className="flex justify-center -mt-12">
           <div className="bg-white border border-gray-200 rounded-full overflow-hidden">
@@ -17,7 +49,32 @@ export default function User({user}:{user:user_obj}) {
           <p className="text-gray-600">Attended Bhavans College</p>
           <p className="text-gray-600">Mumbai, Maharashtra, India</p>
           <div className="mt-4">
-            <button className="text-blue-700 border border-blue-700 rounded-full px-4 py-1 text-sm">Open to</button>
+            <button
+              className={`text-blue-700 border border-blue-700 rounded-full px-4 py-1 text-sm ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              onClick={handleFollow}
+              disabled={isLoading || isFollowing}
+            >
+              {isLoading ? (
+                <svg className="animate-spin h-5 w-5 mr-3 text-blue-700" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 000 8v4a8 8 0 01-8-8z"></path>
+                </svg>
+              ) : isFollowing ? 'Following' : 'Follow'}
+            </button>
+            {isFollowing && (
+              <button
+                className="text-red-700 border border-red-700 rounded-full px-4 py-1 text-sm ml-2"
+                onClick={handleUnfollow}
+                disabled={isLoading}
+              >
+                 {isLoading ? (
+                <svg className="animate-spin h-5 w-5 mr-3 text-blue-700" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 000 8v4a8 8 0 01-8-8z"></path>
+                </svg>
+              ) : 'UnFollow'}
+              </button>
+            )}
           </div>
         </div>
         <div className="border-t px-6 mt-[2rem] py-3">
@@ -44,6 +101,6 @@ export default function User({user}:{user:user_obj}) {
           </div>
         </div>
       </div>
-   </>
-  )
+    </>
+  );
 }

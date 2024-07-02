@@ -64,7 +64,7 @@ export async function FindUser(req: Request, res: Response) {
 
 export async function CreatePost(req: Request, res: Response) {
   try {
-    const { id, postText } = req.body;
+    const { id, text } = req.body;
     const user = await User.findOne({ _id: id });
 
     if (!user) {
@@ -75,24 +75,29 @@ export async function CreatePost(req: Request, res: Response) {
       const url = await uploadCloudinary(req.file.path);
 
       console.log("creating post at" + Date.now());
-
+      console.log(text)
       const newPost = new Post({
-        text: postText,
+        text: text,
         photo: url,
         posted: Date.now(),
       });
 
       const savedPost = await newPost.save();
 
+
+      console.log("saved post=")
+      console.log(savedPost)
+
       user.Posts.push(savedPost._id);
       await user.save();
+      await client.del(`${id}posts`);
 
       const postResponse = {
         post_id: savedPost._id,
         likeCount: 0,
         commentCount: 0,
         imageUrl: url,
-        content: postText,
+        content: text,
         user: {
           name: user.name,
           profilePicture: user.profile_url || "",
@@ -201,89 +206,172 @@ export async function CommentUser(req: Request, res: Response) {
 
 
 
-// export async function getPosts(req:Request,res:Response) {
-  
-//   const {uid,time}=req.body;
+export async function FollowUser(req: Request, res: Response) {
+    const { userId, client_email } = req.body;
 
-//  const data:any[]=JSON.parse(await client.get(`${uid}posts`))
+    if (!userId || !client_email) {
+        return res.status(400).json({ error: 'User ID and client email are required.' });
+    }
 
-//  if(data){
-//   return res.status(200).json({"posts":data,"time":data[data.length-1]})
-//  }
-
-//  const posts=await User.findOne({_id:uid}).populate("Posts").limit(5);
- 
-//  let ans=[];
-//  let count=0;
-//  for(let i=0;i<posts.length;i++){
-
-//   if(ans.length==0){
-//     ans.push(posts[i]);
-//     count++;
-//   }
-//   else{
-//     if(count>0 && ans[count-1].posted<posted[i]){
-//       ans.pop();
-//       ans.push(posted[i]);
-//     }
-//   }
-// }
-// }
-
-export async function getPosts(req: Request, res: Response) {
     try {
-        const { uid, time } = req.body;
-
-        // Fetch the cached posts from Redis
-        const cachedData = await client.get(`${uid}posts`);
-        if (cachedData) {
-            const data = JSON.parse(cachedData);
-            return res.status(200).json({ "posts": data, "time": data[data.length - 1].posted });
+        // Find the user who is being followed
+        const userToFollow = await User.findById(userId);
+        if (!userToFollow) {
+            return res.status(404).json({ error: 'User not found.' });
         }
 
-        // Fetch the user's posts and their connections' posts
-        const user = await User.findById(uid)
-            .populate({
-                path: 'Posts',
-                match: { posted: { $lt: new Date(time) } },
-                options: { sort: { posted: -1 }, limit: 10 }
-            })
-            .populate({
-                path: 'Connections.Connection',
-                populate: {
-                    path: 'Posts',
-                    match: { posted: { $lt: new Date(time) } },
-                    options: { sort: { posted: -1 }, limit: 10 }
-                }
-            })
-            .exec();
-
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
+        // Find the client who is following
+        const clientUser = await User.findOne({ email: client_email });
+        if (!clientUser) {
+            return res.status(404).json({ error: 'Client user not found.' });
         }
 
-        // Combine the user's posts and their connections' posts
-        let posts: any[] = user.Posts || [];
-        for (const connection of user.Connections || []) {
-            const connectionUser = connection.Connection as unknown as UserData;
-            if (connectionUser && connectionUser.Posts) {
-                posts = posts.concat(connectionUser.Posts);
-            }
+        
+        // Check if already following
+        const isAlreadyFollowing = clientUser.Connections?.some(
+            (connection) => connection.Connection.toString() === userId
+        );
+
+        if (isAlreadyFollowing) {
+            return res.status(400).json({ error: 'Already following this user.' });
         }
 
-        // Populate posts to get the 'posted' property
-        posts = await Post.populate(posts, { path: 'Posts' });
+        if(userId!=clientUser._id){
+        // Add the connection
+        clientUser.Connections?.push({
+            Connection: userId,
+            isBlock: false
+        });
 
-        // Sort posts by posted date and get the top 10
-        posts.sort((a, b) => b.posted - a.posted);
-        const topPosts = posts.slice(0, 10);
+        userToFollow.Connections.push({
+          Connection:clientUser._id as unknown as Types.ObjectId,
+          isBlock:false
+        })
 
-        // Cache the result
-        await client.set(`${uid}posts`, JSON.stringify(topPosts)); // Cache for 1 hour
+        await userToFollow.save();
+        await clientUser.save();
 
-        return res.status(200).json({ "posts": topPosts, "time": topPosts[topPosts.length - 1].posted });
+        res.status(200).json({ message: 'User followed successfully.' });
+      }
+      else{
+        res.status(400).json({ message: "u are same user" });
+      }
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({ error: 'Internal Server Error' });
+        console.error('Error following user:', error);
+        res.status(500).json({ error: 'Internal server error.' });
     }
 }
+
+
+export async function UnfollowUser(req: Request, res: Response) {
+    const { userId, client_email } = req.body;
+
+    if (!userId || !client_email) {
+        return res.status(400).json({ error: 'User ID and client email are required.' });
+    }
+
+    try {
+        const userToUnfollow = await User.findById(userId);
+        if (!userToUnfollow) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+
+        const clientUser = await User.findOne({ email: client_email });
+        if (!clientUser) {
+            return res.status(404).json({ error: 'Client user not found.' });
+        }
+
+        const connectionIndex = clientUser.Connections?.findIndex(
+            (connection) => connection.Connection.toString() === userId
+        );
+
+        if (connectionIndex === -1) {
+            return res.status(400).json({ error: 'You are not following this user.' });
+        }
+
+        if (connectionIndex !== undefined && connectionIndex > -1) {
+            clientUser.Connections?.splice(connectionIndex, 1);
+        }
+
+        await clientUser.save();
+
+        res.status(200).json({ message: 'User unfollowed successfully.' });
+    } catch (error) {
+        console.error('Error unfollowing user:', error);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+}
+
+
+export async function getPosts(req: Request, res: Response) {
+
+  try {
+      const { uid, time } = req.body;
+
+      // Fetch the cached posts from Redis
+      const cachedData = await client.get(`${uid}posts`);
+
+      if (cachedData) {
+          const data = JSON.parse(cachedData);
+          console.log(data);
+          return res.status(200).json({ "posts": data, "time": data[data.length-1]?.posted });
+      }
+
+      // Fetch the user's posts and their connections' posts
+      const user = await User.findById(uid)
+          .populate({
+              path: 'Posts',
+              match: { posted: { $lt: new Date(time) } },
+              options: { sort: { posted: -1 }, limit: 10 }
+          })
+          .populate({
+              path: 'Connections.Connection',
+              populate: {
+                  path: 'Posts',
+                  match: { posted: { $lt: new Date(time) } },
+                  options: { sort: { posted: -1 }, limit: 10 }
+              }
+          })
+          .exec();
+
+      if (!user) {
+          return res.status(404).json({ error: 'User not found' });
+      }
+
+      // Combine the user's posts and their connections' posts
+      let posts:any[]=[];
+
+     posts=user.Posts.map((e)=>{
+     /*@ts-ignore*/
+    return {...e._doc,user:{_id:user._id,name:user.name,profilePicture:user.profile_url,isOnline:user.isActive} }
+      })      
+
+      for (const connection of user.Connections || []) {
+          const connectionUser = connection.Connection as unknown as UserData;
+          if (connectionUser && connectionUser.Posts) {
+          
+            connectionUser.Posts.map((e)=>{
+              /*@ts-ignore*/
+      posts.push({...e._doc,user:{_id:connectionUser._id,name:connectionUser.name,profilePicture:connectionUser.profile_url,isOnline:connectionUser.isActive}})
+            })
+  }
+      }
+
+
+      // Sort posts by posted date and get the top 10
+      posts.sort((a, b) => b.posted - a.posted);
+      const topPosts = posts.slice(0, 10);
+
+      // Cache the result
+      await client.set(`${uid}posts`, JSON.stringify(topPosts)); // Cache for 1 hour
+
+      return res.status(200).json({ "posts": topPosts, "time": topPosts[topPosts.length - 1]?.posted });
+  } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+
+
+
+

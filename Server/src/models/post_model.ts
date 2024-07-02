@@ -11,7 +11,7 @@ export interface post {
 const PostSchema =new mongoose.Schema<post>({
     like: [{ type:mongoose.Schema.Types.ObjectId, ref: "User" }],
     comment: [{user:{ type: mongoose.Schema.Types.ObjectId, ref: "User" },comment:{type:String}}],
-    text: { type: String },
+    text: { type: String,required:true },
     photo: { type: String },
     posted: { type: Date, default: Date.now }
 });
