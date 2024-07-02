@@ -59,8 +59,7 @@ export default function PostCard<T extends UserProps>({ user }: PostCardProps<T>
      }) )
     }
     )
-  
-        // setPosts([...res?.data])
+
         setTime(res?.time)
       }
       else{
@@ -72,7 +71,7 @@ export default function PostCard<T extends UserProps>({ user }: PostCardProps<T>
 
   return (
     <div className='w-[100%]'>
-      {posts.length === 0 && <Card 
+      {posts?.length === 0 && <Card 
         likeCount={10}
         commentCount={5}
         photo={"/Images/logo.png"}
