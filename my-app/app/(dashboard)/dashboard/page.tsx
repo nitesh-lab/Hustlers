@@ -22,6 +22,8 @@ export default async function Page() {
       const res = await axiosInstance.post("api/user/findUser", { email: session.user.email, name: session.user.name });
       if (res.status == 200) {
         user = res.data.user;
+        console.log("user=")
+        console.log(user)
       } else {
         redirect("/");
       }

@@ -3,9 +3,9 @@ import React, { useState } from 'react';
 import { user_obj } from '../auth/Signup';
 import { axiosInstance } from '@/lib/axiosInstance';
 
-export default function User({ user, client_email }: { user: user_obj, client_email: string }) {
+export default function User({ user, client_email,isFollow }: { user: user_obj, client_email: string ,isFollow:boolean}) {
   const [isLoading, setIsLoading] = useState(false);
-  const [isFollowing, setIsFollowing] = useState(false);
+   const [isFollowing, setIsFollowing] = useState(isFollow);
 
   const handleFollow = async () => {
     setIsLoading(true);
@@ -45,9 +45,9 @@ export default function User({ user, client_email }: { user: user_obj, client_em
           </div>
         </div>
         <div className="text-center px-6 py-4">
-          <h2 className="text-xl font-medium">{user.name}</h2>
+          {/* <h2 className="text-xl font-medium">{user.name}</h2>
           <p className="text-gray-600">Attended Bhavans College</p>
-          <p className="text-gray-600">Mumbai, Maharashtra, India</p>
+          <p className="text-gray-600">Mumbai, Maharashtra, India</p> */}
           <div className="mt-4">
             <button
               className={`text-blue-700 border border-blue-700 rounded-full px-4 py-1 text-sm ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -81,7 +81,7 @@ export default function User({ user, client_email }: { user: user_obj, client_em
           <div className="flex justify-between items-center">
             <div>
               <button className="text-blue-700 border border-blue-700 rounded-full px-4 py-1 text-sm">Open to work</button>
-              <span className="text-gray-600 ml-2">Software Engineer roles</span>
+              {/* <span className="text-gray-600 ml-2">Software Engineer roles</span> */}
             </div>
             <button className="text-blue-700 border border-blue-700 rounded-full px-4 py-1 text-sm">Share</button>
           </div>

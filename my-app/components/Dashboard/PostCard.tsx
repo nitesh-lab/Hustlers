@@ -1,4 +1,5 @@
 "use client"
+
 import Image from 'next/image';
 import React, { useState, useRef, useEffect, KeyboardEvent } from 'react';
 import { AiOutlineLike } from 'react-icons/ai';
@@ -29,10 +30,9 @@ interface CardProps {
   commentCount?: number;
   post_id:string,
   uid:string,
-  client_user:user_obj
+  client_user:user_obj,
+  hasliked:boolean,
 }
-
-
 
 interface Comment {
   id: number;
@@ -54,8 +54,10 @@ export default function PostCard<T extends UserProps>({ user }: PostCardProps<T>
      const res=await getPosts(user._id,time);
 
      setPosts(()=>{
-      return (res?.data.map((e: { _id: any; like: string | any[]; comment: string | any[]; photo: any; posted: any; user: any; })=>{
-      return {post_id:e._id,likeCount:e.like.length,commentCount:e.comment.length,imageUrl:e.photo,time:e.posted,user:{...e.user}}
+      return (res?.data.map((e: {
+        hasLiked: boolean; _id: any; like: string | any[]; comment: string | any[]; photo: any; posted: any; user: any; 
+})=>{
+      return {post_id:e._id,likeCount:e.like.length,commentCount:e.comment.length,imageUrl:e.photo,time:e.posted,user:{...e.user},hasliked:e.hasLiked}
      }) )
     }
     )
@@ -80,6 +82,7 @@ export default function PostCard<T extends UserProps>({ user }: PostCardProps<T>
         post_id='-1'
         uid='-1'
         client_user={{name:"",email:"",_id:"",profile_url:""}}
+        hasliked={true}
       />}
       
       {posts.map((e, i) => {
@@ -93,6 +96,7 @@ export default function PostCard<T extends UserProps>({ user }: PostCardProps<T>
           user={{ name: e.user.name, profilePicture: e.user.profilePicture, isOnline: e.user.isOnline }}
           post_id={e.post_id}
           client_user={user}
+          hasliked={e.hasliked}
         />
       })}
     </div>
@@ -107,7 +111,8 @@ function Card({
   photo,
   likeCount = 0,
   commentCount = 0,
-  post_id
+  post_id,
+  hasliked
 }: CardProps) {
 
   
@@ -120,7 +125,9 @@ function Card({
   
   const [commentText, setCommentText] = useState('');
   
-  const [hasLiked, setHasLiked] = useState(false);
+  const [hasLiked, setHasLiked] = useState(()=>{
+    return hasliked
+  });
   
   const [canComment, setCanComment] = useState(true);
 
@@ -135,7 +142,6 @@ function Card({
       
      axiosInstance.post('api/user/like', { post_id: post_id,uid:uid })
       setHasLiked(true);
-
     }
   };
 

@@ -32,34 +32,57 @@ export async function Check_CreateUser(req: Request, res: Response) {
 }
 
 export async function FindUser(req: Request, res: Response) {
-  const { email, name, _id } = req.body;
+    const { email, name, _id, client_email } = req.body;
 
-  if (_id) {
-    const userExists = await client.json.get(_id);
-    if (userExists) {
-      return res.status(200).json({ user: userExists });
-    } else {
-      const response = await User.findOne({ _id: _id });
+    try {
+        if (_id) {
+            if (client_email?.length > 0) {
+                const user = await User.findById(_id)
+                    .populate({
+                        path: 'Connections.Connection',
+                    });
 
-      if (response) {
-        const { _id, profile_url, name, isActive, lastSeen } = response;
-        await client.json.set(_id.toString(), "$", { _id, profile_url, name, isActive, lastSeen }); // set in cache here 
-        return res.status(200).json({ user: response });
-      } else {
-        return res.status(400).json({ user: "No such User" });
-      }
+                if (user) {
+                    const isPresent = user.Connections?.some(connection =>
+                      // @ts-ignore 
+                        connection.Connection?.email === client_email
+                    );
+
+                    return res.status(200).json({user:user,isPresent});
+                } else {
+                    return res.status(400).json({ user: "No such User" });
+                }
+            }
+
+            const userExists = await client.json.get(_id);
+            if (userExists) {
+                return res.status(200).json({ user: userExists });
+            } else {
+                const response = await User.findOne({ _id: _id });
+
+                if (response) {
+                    const { _id, profile_url, name, isActive, lastSeen } = response;
+                    await client.json.set(_id.toString(), "$", { _id, profile_url, name, isActive, lastSeen }); // set in cache here 
+                    return res.status(200).json({ user: response });
+                } else {
+                    return res.status(400).json({ user: "No such User" });
+                }
+            }
+        } else {
+            const response = await User.findOne({ $or: [{ name: name }, { email: email }] });
+
+            if (response) {
+                const { _id, profile_url, name, isActive, lastSeen } = response;
+                await client.json.set(_id.toString(), "$", { _id, profile_url, name, isActive, lastSeen }); // set in cache here 
+                return res.status(200).json({ user: response });
+            } else {
+                return res.status(400).json({ user: "No such User" });
+            }
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: "Internal Server Error" });
     }
-  } else {
-    const response = await User.findOne({ $or: [{ name: name }, { email: email }] });
-
-    if (response) {
-      const { _id, profile_url, name, isActive, lastSeen } = response;
-      await client.json.set(_id.toString(), "$", { _id, profile_url, name, isActive, lastSeen }); // set in cache here 
-      return res.status(200).json({ user: response });
-    } else {
-      return res.status(400).json({ user: "No such User" });
-    }
-  }
 }
 
 export async function CreatePost(req: Request, res: Response) {
@@ -302,75 +325,82 @@ export async function UnfollowUser(req: Request, res: Response) {
     }
 }
 
-
 export async function getPosts(req: Request, res: Response) {
-
   try {
-      const { uid, time } = req.body;
+    const { uid, time } = req.body;
 
-      // Fetch the cached posts from Redis
-      const cachedData = await client.get(`${uid}posts`);
+    // Fetch the cached posts from Redis
+    const cachedData = await client.get(`${uid}posts`);
+    if (cachedData) {
+      const data = JSON.parse(cachedData);
+      return res.status(200).json({ "posts": data, "time": data[data.length - 1]?.posted });
+    }
 
-      if (cachedData) {
-          const data = JSON.parse(cachedData);
-          console.log(data);
-          return res.status(200).json({ "posts": data, "time": data[data.length-1]?.posted });
+    // Fetch the user's posts and their connections' posts
+    const user = await User.findById(uid)
+      .populate({
+        path: 'Posts',
+        match: { posted: { $lt: new Date(time) } },
+        options: { sort: { posted: -1 }, limit: 10 }
+      })
+      .populate({
+        path: 'Connections.Connection',
+        populate: {
+          path: 'Posts',
+          match: { posted: { $lt: new Date(time) } },
+          options: { sort: { posted: -1 }, limit: 10 }
+        }
+      })
+      .exec();
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Combine the user's posts and their connections' posts
+    let posts: any[] = [];
+
+    posts = user.Posts.map((post) => {
+     
+      return {
+         /*@ts-ignore*/
+        ...post._doc,
+        user: { _id: user._id, name: user.name, profilePicture: user.profile_url, isOnline: user.isActive },
+         /*@ts-ignore*/
+        hasLiked: post.like.includes(uid)
+      };
+    });
+
+    for (const connection of user.Connections || []) {
+      const connectionUser = connection.Connection as unknown as UserData;
+      if (connectionUser && connectionUser.Posts) {
+        connectionUser.Posts.forEach((post) => {
+         
+          posts.push({
+          /*@ts-ignore*/
+            ...post._doc,
+            user: { _id: connectionUser._id, name: connectionUser.name, profilePicture: connectionUser.profile_url, isOnline: connectionUser.isActive },
+            /*@ts-ignore*/
+            hasLiked: post.like.includes(uid)
+          });
+        });
       }
+    }
 
-      // Fetch the user's posts and their connections' posts
-      const user = await User.findById(uid)
-          .populate({
-              path: 'Posts',
-              match: { posted: { $lt: new Date(time) } },
-              options: { sort: { posted: -1 }, limit: 10 }
-          })
-          .populate({
-              path: 'Connections.Connection',
-              populate: {
-                  path: 'Posts',
-                  match: { posted: { $lt: new Date(time) } },
-                  options: { sort: { posted: -1 }, limit: 10 }
-              }
-          })
-          .exec();
+    // Sort posts by posted date and get the top 10
+    posts.sort((a, b) => b.posted - a.posted);
+    const topPosts = posts.slice(0, 10);
 
-      if (!user) {
-          return res.status(404).json({ error: 'User not found' });
-      }
+    // Cache the result
+    await client.set(`${uid}posts`, JSON.stringify(topPosts)); // Cache for 1 hour
 
-      // Combine the user's posts and their connections' posts
-      let posts:any[]=[];
-
-     posts=user.Posts.map((e)=>{
-     /*@ts-ignore*/
-    return {...e._doc,user:{_id:user._id,name:user.name,profilePicture:user.profile_url,isOnline:user.isActive} }
-      })      
-
-      for (const connection of user.Connections || []) {
-          const connectionUser = connection.Connection as unknown as UserData;
-          if (connectionUser && connectionUser.Posts) {
-          
-            connectionUser.Posts.map((e)=>{
-              /*@ts-ignore*/
-      posts.push({...e._doc,user:{_id:connectionUser._id,name:connectionUser.name,profilePicture:connectionUser.profile_url,isOnline:connectionUser.isActive}})
-            })
-  }
-      }
-
-
-      // Sort posts by posted date and get the top 10
-      posts.sort((a, b) => b.posted - a.posted);
-      const topPosts = posts.slice(0, 10);
-
-      // Cache the result
-      await client.set(`${uid}posts`, JSON.stringify(topPosts)); // Cache for 1 hour
-
-      return res.status(200).json({ "posts": topPosts, "time": topPosts[topPosts.length - 1]?.posted });
+    return res.status(200).json({ "posts": topPosts ,"time": topPosts[topPosts.length - 1]?.posted });
   } catch (error) {
-      console.error(error);
-      return res.status(500).json({ error: 'Internal Server Error' });
+    console.error(error);
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 }
+
 
 
 
