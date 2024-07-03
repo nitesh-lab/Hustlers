@@ -1,7 +1,18 @@
 "use client";
 import React, { useState, createContext, useContext, ReactNode } from "react";
 
+interface Comment {
+  text: string;
+  username: string;
+  userimage: string;
+  userid: string;
+}
+
+
 interface Post_Type {
+  comments: Comment[];
+  hasliked: boolean;
+  hasLiked: boolean;
   likeCount: number;
   commentCount: number;
   imageUrl: string;

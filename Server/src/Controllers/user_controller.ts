@@ -203,7 +203,7 @@ export async function LikeUser(req: Request, res: Response) {
 }
 
 export async function CommentUser(req: Request, res: Response) {
-  const { post_id, uid, commentText } = req.body;
+  const { post_id, uid,text } = req.body;
 
   try {
     const post = await Post.findById(post_id);
@@ -216,7 +216,7 @@ export async function CommentUser(req: Request, res: Response) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    post.comment.push({user:uid as Types.ObjectId,comment:commentText as string});
+    post.comment.push({user:uid as Types.ObjectId,comment:text as string});
 
     const savedComment=await post.save();
 
@@ -325,6 +325,7 @@ export async function UnfollowUser(req: Request, res: Response) {
     }
 }
 
+
 export async function getPosts(req: Request, res: Response) {
   try {
     const { uid, time } = req.body;
@@ -333,7 +334,7 @@ export async function getPosts(req: Request, res: Response) {
     const cachedData = await client.get(`${uid}posts`);
     if (cachedData) {
       const data = JSON.parse(cachedData);
-      return res.status(200).json({ "posts": data, "time": data[data.length - 1]?.posted });
+      return res.status(200).json({ posts: data, time: data[data.length - 1]?.posted });
     }
 
     // Fetch the user's posts and their connections' posts
@@ -341,14 +342,22 @@ export async function getPosts(req: Request, res: Response) {
       .populate({
         path: 'Posts',
         match: { posted: { $lt: new Date(time) } },
-        options: { sort: { posted: -1 }, limit: 10 }
+        options: { sort: { posted: -1 }, limit: 10 },
+        populate: {
+          path: 'comment.user',
+          select: 'name profile_url _id'
+        }
       })
       .populate({
         path: 'Connections.Connection',
         populate: {
           path: 'Posts',
           match: { posted: { $lt: new Date(time) } },
-          options: { sort: { posted: -1 }, limit: 10 }
+          options: { sort: { posted: -1 }, limit: 10 },
+          populate: {
+            path: 'comment.user',
+            select: 'name profile_url _id'
+          }
         }
       })
       .exec();
@@ -361,13 +370,19 @@ export async function getPosts(req: Request, res: Response) {
     let posts: any[] = [];
 
     posts = user.Posts.map((post) => {
-     
       return {
-         /*@ts-ignore*/
+        /*@ts-ignore*/
         ...post._doc,
         user: { _id: user._id, name: user.name, profilePicture: user.profile_url, isOnline: user.isActive },
+        /*@ts-ignore*/
+        hasLiked: post.like.includes(uid),
          /*@ts-ignore*/
-        hasLiked: post.like.includes(uid)
+        comments: post.comment.map((c) => ({
+          text: c.comment,
+          username: c.user.name,
+          userimage: c.user.profile_url,
+          userid: c.user._id
+        }))
       };
     });
 
@@ -375,13 +390,19 @@ export async function getPosts(req: Request, res: Response) {
       const connectionUser = connection.Connection as unknown as UserData;
       if (connectionUser && connectionUser.Posts) {
         connectionUser.Posts.forEach((post) => {
-         
           posts.push({
-          /*@ts-ignore*/
+            /*@ts-ignore*/
             ...post._doc,
             user: { _id: connectionUser._id, name: connectionUser.name, profilePicture: connectionUser.profile_url, isOnline: connectionUser.isActive },
             /*@ts-ignore*/
-            hasLiked: post.like.includes(uid)
+            hasLiked: post.like.includes(uid),
+             /*@ts-ignore*/
+            comments: post.comment.map((c) => ({
+              text: c.comment,
+              username: c.user.name,
+              userimage: c.user.profile_url,
+              userid: c.user._id
+            }))
           });
         });
       }
@@ -394,13 +415,12 @@ export async function getPosts(req: Request, res: Response) {
     // Cache the result
     await client.set(`${uid}posts`, JSON.stringify(topPosts)); // Cache for 1 hour
 
-    return res.status(200).json({ "posts": topPosts ,"time": topPosts[topPosts.length - 1]?.posted });
+    return res.status(200).json({ posts: topPosts, time: topPosts[topPosts.length - 1]?.posted });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: 'Internal Server Error' });
   }
 }
-
 
 
 

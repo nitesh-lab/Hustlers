@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import Image from 'next/image';
 import React, { useState, useRef, useEffect, KeyboardEvent } from 'react';
@@ -28,107 +28,113 @@ interface CardProps {
   photo?: string;
   likeCount?: number;
   commentCount?: number;
-  post_id:string,
-  uid:string,
-  client_user:user_obj,
-  hasliked:boolean,
+  post_id: string;
+  uid: string;
+  client_user: user_obj;
+  hasliked: boolean;
+  comments: Comment[];
 }
 
 interface Comment {
-  id: number;
-  name: string;
   text: string;
-  profilePicture?: string;
+  username: string;
+  userimage: string;
+  userid: string;
 }
 
 export default function PostCard<T extends UserProps>({ user }: PostCardProps<T>) {
-
-  const { posts,setPosts } = usePostContext();
-  const [time,setTime]=useState(()=>{
+  const { posts, setPosts } = usePostContext();
+  const [time, setTime] = useState(() => {
     return Date.now();
   });
 
-  useEffect(()=>{
+  useEffect(() => {
     async function getData() {
-      if(user._id.length>0){
-     const res=await getPosts(user._id,time);
+      if (user._id.length > 0) {
+        const res = await getPosts(user._id, time);
 
-     setPosts(()=>{
-      return (res?.data.map((e: {
-        hasLiked: boolean; _id: any; like: string | any[]; comment: string | any[]; photo: any; posted: any; user: any; 
-})=>{
-      return {post_id:e._id,likeCount:e.like.length,commentCount:e.comment.length,imageUrl:e.photo,time:e.posted,user:{...e.user},hasliked:e.hasLiked}
-     }) )
-    }
-    )
+        setPosts(() => {
+          return res?.data.map((e: any) => {
+            return {
+              post_id: e._id,
+              likeCount: e.like.length,
+              commentCount: e.comment.length,
+              imageUrl: e.photo,
+              content: e.text,
+              time: e.posted,
+              user: { ...e.user },
+              hasliked: e.hasLiked,
+              comments: e.comments
+            };
+          });
+        });
 
-        setTime(res?.time)
-      }
-      else{
+        setTime(res?.time);
+      } else {
         return;
       }
     }
-    getData(); 
-  },[])
+    getData();
+  }, []);
 
   return (
     <div className='w-[100%]'>
-      {posts?.length === 0 && <Card 
-        likeCount={10}
-        commentCount={5}
-        photo={"/Images/logo.png"}
-        content={"Welcome Message."}
-        user={{ name: "nitesh", profilePicture: user.profile_url, isOnline: true }}
-        post_id='-1'
-        uid='-1'
-        client_user={{name:"",email:"",_id:"",profile_url:""}}
-        hasliked={true}
-      />}
-      
-      {posts.map((e, i) => {
-        return <Card 
-          key={i}
-          uid={user._id}
-          likeCount={e.likeCount}
-          commentCount={e.commentCount}
-          photo={e.imageUrl}
-          content={e.content}
-          user={{ name: e.user.name, profilePicture: e.user.profilePicture, isOnline: e.user.isOnline }}
-          post_id={e.post_id}
-          client_user={user}
-          hasliked={e.hasliked}
+      {posts?.length === 0 && (
+        <Card
+          likeCount={10}
+          commentCount={5}
+          photo={"/Images/logo.png"}
+          content={"Welcome Message."}
+          user={{ name: "nitesh", profilePicture: user.profile_url, isOnline: true }}
+          post_id='-1'
+          uid='-1'
+          client_user={{ name: "", email: "", _id: "", profile_url: "" }}
+          hasliked={true}
+          comments={[]}
         />
+      )}
+
+      {posts.map((e, i) => {
+        return (
+          <Card
+            key={i}
+            uid={user._id}
+            likeCount={e.likeCount}
+            commentCount={e.commentCount}
+            photo={e.imageUrl}
+            content={e.content}
+            user={{ name: e.user.name, profilePicture: e.user.profilePicture, isOnline: e.user.isOnline }}
+            post_id={e.post_id}
+            client_user={user}
+            hasliked={e.hasliked}
+            comments={e.comments}
+          />
+        );
       })}
     </div>
   );
 }
 
+
+
+
 function Card({
   user: { name, profilePicture, isOnline },
-  client_user={name:"",_id:"",profile_url:"",email:""},
+  client_user = { name: "", _id: "", profile_url: "", email: "" },
   content,
   uid,
   photo,
   likeCount = 0,
   commentCount = 0,
   post_id,
-  hasliked
+  hasliked,
+  comments: initialComments
 }: CardProps) {
 
-  
   const [showComments, setShowComments] = useState(false);
-  
-  const [comments, setComments] = useState<Comment[]>([
-    { id: 1, name: "Ray Cass", text: "We will close deals faster with a buyer-friendly mutual action plan." },
-    { id: 2, name: "Molly Austin", text: "And templatize a repeatable playbook for every rep to follow on every deal." }
-  ]);
-  
+  const [comments, setComments] = useState<Comment[]>(initialComments);
   const [commentText, setCommentText] = useState('');
-  
-  const [hasLiked, setHasLiked] = useState(()=>{
-    return hasliked
-  });
-  
+  const [hasLiked, setHasLiked] = useState(hasliked);
   const [canComment, setCanComment] = useState(true);
 
   const commentRef = useRef<HTMLDivElement>(null);
@@ -139,16 +145,15 @@ function Card({
 
   const handleLike = () => {
     if (!hasLiked) {
-      
-     axiosInstance.post('api/user/like', { post_id: post_id,uid:uid })
+      axiosInstance.post('api/user/like', { post_id: post_id, uid: uid });
       setHasLiked(true);
     }
   };
 
   const addComment = () => {
     if (commentText.trim() && canComment) {
-      axiosInstance.post('api/user/comment', { post_id: post_id, text: commentText,uid:uid })
-      setComments([...comments, { id: comments.length + 1, profilePicture:client_user.profile_url ,name:client_user.name, text: commentText }]);
+      axiosInstance.post('api/user/comment', { post_id: post_id, text: commentText, uid: uid });
+      setComments([...comments, { text: commentText, username: client_user.email, userimage: client_user.profile_url, userid: client_user._id }]);
       setCommentText('');
       setCanComment(false);
       setTimeout(() => setCanComment(true), 3000); // Set a timer to allow commenting again after 3 seconds
@@ -172,7 +177,7 @@ function Card({
       document.addEventListener('mousedown', handleClickOutside);
     } else {
       document.removeEventListener('mousedown', handleClickOutside);
-    };
+    }
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
@@ -250,16 +255,16 @@ function Card({
             </div>
             <div className="space-y-4">
               {comments.map(comment => (
-                <div key={comment.id} className="flex items-start space-x-3">
+                <div key={Math.random()} className="flex items-start space-x-3">
                   <Image 
-                    src={comment?.profilePicture || "/default-profile.png"} 
-                    alt={`${comment.name}'s profile picture`} 
+                    src={comment.userimage || "/default-profile.png"} 
+                    alt={`${comment.username}'s profile picture`} 
                     className="rounded-full object-cover"
                     width={40}
                     height={40}
                   />
                   <div>
-                    <p className="font-semibold text-gray-900">{comment.name}</p>
+                    <p className="font-semibold text-gray-900">{comment.username}</p>
                     <p className="text-gray-700">{comment.text}</p>
                   </div>
                 </div>

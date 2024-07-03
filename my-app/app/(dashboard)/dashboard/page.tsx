@@ -3,7 +3,6 @@ import {PostProvider}  from '../../../Context/PostProvider';
 import { auth } from '../../../auth';
 import CreatePost from "../../../components/Dashboard/CreatePost";
 import PostCard from '../../../components/Dashboard/PostCard';
-import Stories from '../../../components/Dashboard/Story';
 import TrendNews from '../../../components/Dashboard/TrendNews';
 import NavBarDashBoard from '../../../components/NavBarDashBoard';
 import { user_obj } from '../../../components/auth/Signup';
