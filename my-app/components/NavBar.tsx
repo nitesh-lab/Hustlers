@@ -10,7 +10,7 @@ export default function NavBar() {
 
           <div className="flex items-center space-x-3 rtl:space-x-reverse">
             <Image src={"/Images/logo.png"} width={48} height={48} alt='Logo' />
-            <Input />
+            {/* <Input /> */}
           </div>
 
           <div className="hidden w-full md:block md:w-auto" id="navbar-default">

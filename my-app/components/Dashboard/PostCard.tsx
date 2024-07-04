@@ -286,9 +286,9 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(({
           <button className="flex items-center text-gray-600 hover:text-blue-600" onClick={toggleComments}>
             <FaRegComment className="mr-1" /> Comment
           </button>
-          <button className="flex items-center text-gray-600 hover:text-blue-600">
+          {/* <button className="flex items-center text-gray-600 hover:text-blue-600">
             <IoMdSend className="mr-1" /> Send
-          </button>
+          </button> */}
         </div>
 
         {showComments && (

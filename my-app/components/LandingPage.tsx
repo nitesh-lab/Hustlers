@@ -6,7 +6,7 @@ import React, { useEffect } from 'react'
  export default function LandingPage() {
   return (
     <>
-     <div className="relative bg-gray-800 items-center justify-center w-full overflow-x-hidden overflow-y-hidden lg:pt-40 lg:pb-20 xl:pt-40 xl:pb-30">
+     <div className="relative bg-gray-800 top-[1rem] items-center justify-center w-full overflow-x-hidden overflow-y-hidden lg:pt-40 lg:pb-20 xl:pt-40 xl:pb-30">
         <div
             className="container flex flex-col items-center justify-between h-full max-w-6xl px-8 mx-auto -mt-32 lg:flex-row xl:px-0">
             <div
@@ -200,7 +200,7 @@ import React, { useEffect } from 'react'
                 </p>
             </div>
             <div className="block w-full pl-10 mt-6 text-sm lg:w-3/4 sm:flex lg:mt-0">
-                <ul className="flex flex-col w-full p-0 font-medium text-left text-white list-none">
+                {/* <ul className="flex flex-col w-full p-0 font-medium text-left text-white list-none">
                     <li className="inline-block px-3 py-2 mt-5 font-bold tracking-wide text-white uppercase md:mt-0">
                         Product</li>
                     <li><a href="#_"
@@ -214,7 +214,7 @@ import React, { useEffect } from 'react'
                     </li>
                     <li><a href="#_"
                             className="inline-block px-3 py-2 text-white no-underline hover:text-white">FAQ</a></li>
-                </ul>
+                </ul> */}
                 <ul className="flex flex-col w-full p-0 font-medium text-left text-white list-none">
                     <li className="inline-block px-3 py-2 mt-5 font-bold tracking-wide text-white uppercase md:mt-0">
                         Company</li>
@@ -225,19 +225,7 @@ import React, { useEffect } from 'react'
                             of
                             Service</a></li>
                 </ul>
-                <ul className="flex flex-col w-full p-0 font-medium text-left text-white list-none">
-                    <li className="inline-block px-3 py-2 mt-5 font-bold tracking-wide text-white uppercase md:mt-0">
-                        TailwindCSS
-                    </li>
-                    <li><a href="https://devdojo.com/tailwindcss/components"
-                            className="inline-block px-3 py-2 text-white no-underline hover:text-white">Tailwind
-                            Components</a></li>
-                    <li><a href="https://devdojo.com/tailwindcss/templates"
-                            className="inline-block px-3 py-2 text-white no-underline hover:text-white">Tailwind
-                            Templates</a></li>
-                    <li><a href="https://devdojo.com/tails"
-                            className="inline-block px-3 py-2 text-white no-underline hover:text-white">Tails</a></li>
-                </ul>
+               
                 <div className="flex flex-col w-full text-white">
                     <div className="inline-block px-3 py-2 mt-5 font-bold text-white uppercase md:mt-0">Follow Us</div>
                     <div className="flex justify-start pl-4 mt-2">
@@ -266,10 +254,10 @@ import React, { useEffect } from 'react'
                 </div>
             </div>
         </div>
-        <div className=" pt-6 mt-10 text-center text-white border-t border-gray-100">© 2020 Landmark. All rights
+        <div className=" pt-6 mt-10 text-center text-white border-t border-gray-100">© 2024 Landmark. All rights
             reserved.</div>
 
-            <div className=" pt-4 mt-2 text-center text-white border-t border-gray-100">Distributed By <a href="https://themewagon.com/">Themewagon</a></div>
+            <div className=" pt-4 mt-2 text-center text-white border-t border-gray-100">Made By a Hustler</div>
     </footer>
     </>
   )
