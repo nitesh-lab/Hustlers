@@ -33,7 +33,6 @@ export async function Check_CreateUser(req: Request, res: Response) {
 
 export async function FindUser(req: Request, res: Response) {
     const { email, name, _id, client_email } = req.body;
-
     try {
         if (_id) {
             if (client_email?.length > 0) {
@@ -331,18 +330,26 @@ export async function getPosts(req: Request, res: Response) {
     const { uid, time } = req.body;
 
     // Fetch the cached posts from Redis
-    const cachedData = await client.get(`${uid}posts`);
-    if (cachedData) {
-      const data = JSON.parse(cachedData);
-      return res.status(200).json({ posts: data, time: data[data.length - 1]?.posted });
-    }
+    // const cachedData = await client.get(`${uid}posts`);
+    // if (cachedData) {
+    //   const data = JSON.parse(cachedData);
+    //   const time_curr=new Date(data[data.length-1]?.posted).getTime();
+    //   console.log("currtime")
+    //   console.log(time_curr)
+    //   console.log("time")
+    //   console.log(time)
+    //   if(time_curr<time){
+    //     console.log("came for cache")
+    //   return res.status(200).json({ posts: data, time: data[data.length - 1]?.posted });
+    //   }
+    // }
 
     // Fetch the user's posts and their connections' posts
     const user = await User.findById(uid)
       .populate({
         path: 'Posts',
         match: { posted: { $lt: new Date(time) } },
-        options: { sort: { posted: -1 }, limit: 10 },
+        options: { sort: { posted: -1 }, limit: 1 },
         populate: {
           path: 'comment.user',
           select: 'name profile_url _id'
@@ -353,7 +360,7 @@ export async function getPosts(req: Request, res: Response) {
         populate: {
           path: 'Posts',
           match: { posted: { $lt: new Date(time) } },
-          options: { sort: { posted: -1 }, limit: 10 },
+          options: { sort: { posted: -1 }, limit: 1 },
           populate: {
             path: 'comment.user',
             select: 'name profile_url _id'
@@ -413,7 +420,7 @@ export async function getPosts(req: Request, res: Response) {
     const topPosts = posts.slice(0, 10);
 
     // Cache the result
-    await client.set(`${uid}posts`, JSON.stringify(topPosts)); // Cache for 1 hour
+    // await client.set(`${uid}posts`, JSON.stringify(topPosts)); // Cache for 1 hour
 
     return res.status(200).json({ posts: topPosts, time: topPosts[topPosts.length - 1]?.posted });
   } catch (error) {
