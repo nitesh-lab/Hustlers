@@ -19,6 +19,7 @@ interface Post_Type {
   content: string;
   post_id:string,
   user: {
+    _id: string;
     name: string;
     profilePicture: string;
     isOnline: boolean;
