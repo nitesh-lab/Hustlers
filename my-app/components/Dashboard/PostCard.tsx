@@ -1,7 +1,7 @@
 "use client";
 
 import Image from 'next/image';
-import React, { useState, useRef, useEffect, KeyboardEvent } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { AiOutlineLike } from 'react-icons/ai';
 import { FaRegComment } from 'react-icons/fa';
 import { IoMdSend } from 'react-icons/io';
@@ -9,6 +9,8 @@ import { user_obj } from '../auth/Signup';
 import { usePostContext } from '../../Context/PostProvider';
 import { axiosInstance } from '@/lib/axiosInstance';
 import { getPosts } from '@/lib/actions/posts';
+import Loader from '../common/Loader';
+import { useRouter } from 'next/navigation';
 
 interface UserProps extends user_obj {
   profile_url: string;
@@ -23,6 +25,7 @@ interface CardProps {
     name: string;
     profilePicture: string;
     isOnline: boolean;
+    _id:string,
   };
   content: string;
   photo?: string;
@@ -44,82 +47,133 @@ interface Comment {
 
 export default function PostCard<T extends UserProps>({ user }: PostCardProps<T>) {
   const { posts, setPosts } = usePostContext();
-  const [time, setTime] = useState(() => {
-    return Date.now();
-  });
+  const [time, setTime] = useState(() => Date.now());
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+
+  const observer = useRef<IntersectionObserver | null>(null);
+
+  const lastPostRef = useCallback((node: HTMLDivElement)=> {
+    if (loading) return;
+    if (observer.current) observer.current.disconnect();
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasMore) {
+        loadMorePosts();
+      }
+    });
+    if (node) observer.current.observe(node);
+  }, [loading, hasMore]);
 
   useEffect(() => {
-    async function getData() {
-      if (user._id.length > 0) {
-        const res = await getPosts(user._id, time);
 
-        setPosts(() => {
-          return res?.data.map((e: any) => {
-            return {
-              post_id: e._id,
-              likeCount: e.like.length,
-              commentCount: e.comment.length,
-              imageUrl: e.photo,
-              content: e.text,
-              time: e.posted,
-              user: { ...e.user },
-              hasliked: e.hasLiked,
-              comments: e.comments
-            };
+      async function getData() {
+        
+        if (user._id.length > 0) {
+          setLoading(true);
+          const res = await getPosts(user._id, time);
+
+          const newPosts = res?.data.map((e: any) => ({
+            post_id: e._id,
+            likeCount: e.like.length,
+            commentCount: e.comment.length,
+            imageUrl: e.photo,
+            content: e.text,
+            time: e.posted,
+            user: { ...e.user },
+            hasliked: e.hasLiked,
+            comments: e.comments
+          }));
+
+          setPosts(prevPosts => {
+            const postSet = new Set(prevPosts.map(post => post.post_id));
+            const filteredPosts = newPosts.filter((post: { post_id: string; }) => !postSet.has(post.post_id));
+            return [...prevPosts, ...filteredPosts];
           });
-        });
 
-        setTime(res?.time);
-      } else {
-        return;
+          setTime(new Date(res?.time).getTime());
+          setLoading(false);
+          if (res?.data.length === 0) setHasMore(false);
+        }
       }
-    }
-    getData();
-  }, []);
+
+      getData();
+    },[]);
+
+  const loadMorePosts = async () => {
+    setLoading(true);
+    const res = await getPosts(user._id, time);
+    const newPosts = res?.data.map((e: any) => ({
+      post_id: e._id,
+      likeCount: e.like.length,
+      commentCount: e.comment.length,
+      imageUrl: e.photo,
+      content: e.text,
+      time: e.posted,
+      user: { ...e.user },
+      hasliked: e.hasLiked,
+      comments: e.comments
+    }));
+
+    setPosts(prevPosts => {
+      const postSet = new Set(prevPosts.map(post => post.post_id));
+      const filteredPosts = newPosts.filter((post: { post_id: string; }) => !postSet.has(post.post_id));
+      return [...prevPosts, ...filteredPosts];
+    });
+    setTime(new Date(res?.time).getTime());
+    setLoading(false);
+    if (res?.data.length === 0) setHasMore(false);
+  };
 
   return (
     <div className='w-[100%]'>
-      {posts?.length === 0 && (
-        <Card
-          likeCount={10}
-          commentCount={5}
-          photo={"/Images/logo.png"}
-          content={"Welcome Message."}
-          user={{ name: "nitesh", profilePicture: user.profile_url, isOnline: true }}
-          post_id='-1'
-          uid='-1'
-          client_user={{ name: "", email: "", _id: "", profile_url: "" }}
-          hasliked={true}
-          comments={[]}
-        />
-      )}
-
       {posts.map((e, i) => {
-        return (
-          <Card
-            key={i}
-            uid={user._id}
-            likeCount={e.likeCount}
-            commentCount={e.commentCount}
-            photo={e.imageUrl}
-            content={e.content}
-            user={{ name: e.user.name, profilePicture: e.user.profilePicture, isOnline: e.user.isOnline }}
-            post_id={e.post_id}
-            client_user={user}
-            hasliked={e.hasliked}
-            comments={e.comments}
-          />
-        );
+        if (posts.length === i + 1) {
+          return (
+            <Card
+              ref={lastPostRef}
+              key={e.post_id}
+              uid={user._id}
+              likeCount={e.likeCount}
+              commentCount={e.commentCount}
+              photo={e.imageUrl}
+              content={e.content}
+              user={{_id:e.user._id, name: e.user.name, profilePicture: e.user.profilePicture, isOnline: e.user.isOnline }}
+              post_id={e.post_id}
+              client_user={user}
+              hasliked={e.hasliked}
+              comments={e.comments}
+            />
+          );
+        } else {
+          return (
+            <Card
+              key={e.post_id}
+              uid={user._id}
+              likeCount={e.likeCount}
+              commentCount={e.commentCount}
+              photo={e.imageUrl}
+              content={e.content}
+              user={{_id:e.user._id,name: e.user.name, profilePicture: e.user.profilePicture, isOnline: e.user.isOnline }}
+              post_id={e.post_id}
+              client_user={user}
+              hasliked={e.hasliked}
+              comments={e.comments}
+            />
+          );
+        }
       })}
+       {loading && (
+        <div className="flex justify-center items-center w-full my-4">
+          <Loader />
+        </div>
+      )}
     </div>
   );
 }
 
-
-
-
-function Card({
-  user: { name, profilePicture, isOnline },
+// eslint-disable-next-line react/display-name
+const Card = React.forwardRef<HTMLDivElement, CardProps>(({
+  user: { _id,name, profilePicture, isOnline },
   client_user = { name: "", _id: "", profile_url: "", email: "" },
   content,
   uid,
@@ -129,8 +183,9 @@ function Card({
   post_id,
   hasliked,
   comments: initialComments
-}: CardProps) {
+}, ref) => {
 
+  const router=useRouter();
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState<Comment[]>(initialComments);
   const [commentText, setCommentText] = useState('');
@@ -160,7 +215,7 @@ function Card({
     }
   };
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       addComment();
     }
@@ -183,10 +238,14 @@ function Card({
     };
   }, [showComments]);
 
+  function handleClick(){
+    router.push(`profile/${_id}`)
+  }
+
   return (
-    <div className="w-[100%] relative">
+    <div className="w-[100%] relative" ref={ref}>
       <div className="max-w-[90%] mx-[5%] sm:max-w-lg my-[1rem] sm:my-[1.5rem] sm:mx-auto bg-white border rounded-lg shadow-md">
-        <div className="flex items-center p-4">
+        <div onClick={()=>handleClick()} className="flex items-center p-4">
           <div className="w-10 h-10 rounded-full bg-gray-300">
             {profilePicture && (
               <Image
@@ -275,4 +334,4 @@ function Card({
       </div>
     </div>
   );
-}
+});
