@@ -1,11 +1,11 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
 export interface DashBoard_State {
-    active: "home" | "network" | "messaging" | "jobs";
+    active: "dashboard" | "network" | "messaging" | "job";
 }
 
 const initialState: DashBoard_State = {
-    active: "home",
+    active: "dashboard",
 };
 
 const dashboardSlice = createSlice({
@@ -13,9 +13,6 @@ const dashboardSlice = createSlice({
     initialState,
     reducers: {
         active_action: (state, action: PayloadAction<DashBoard_State['active']>) => {
-            console.log("active_action reducer called with");
-            console.log(action.payload);
-
             return { ...state, active: action.payload };
         }
     }

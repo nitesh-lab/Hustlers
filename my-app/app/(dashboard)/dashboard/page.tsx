@@ -44,7 +44,7 @@ export default async function Page() {
         <div className="lg:col-start-1 lg:col-end-2"></div>
 
         {/* 2nd section */}
-        <div className="lg:col-start-2 lg:col-end-5">
+        <div className="lg:col-start-2  lg:col-end-5">
           <PostProvider>
           <CreatePost user={(user) as user_obj} />
           <Suspense fallback={<p>loading...</p>}>
@@ -55,7 +55,7 @@ export default async function Page() {
 
         {/* 3rd section */}
         <div className="lg:col-start-5 lg:col-end-6 ml-[1rem] mt-[1rem] hidden lg:block">
-          <TrendNews />
+          {/* <TrendNews /> */}
         </div>
       </div>
 

@@ -1,26 +1,30 @@
 "use client";
+import { useRouter } from 'next/navigation';
 import { active_action } from '../../lib/Slices/DashBoardSlice';
 import { useAppDispatch, useAppSelector } from '../../lib/reduxhooks';
-import React from 'react';
+import React, { act, useEffect } from 'react';
 import { FaBriefcase, FaHome, FaComments, FaNetworkWired } from 'react-icons/fa';
 
 export default function Services() {
   const active = useAppSelector((state) => state.dashboard.active);
   const dispatch = useAppDispatch();
-
-  function handleNavClick(navItem: "home" | "network" | "messaging" | "jobs") {
+  const router=useRouter();
+  function handleNavClick(navItem: "dashboard" | "network" | "messaging" | "job") {
     dispatch(active_action(navItem));
   }
 
+  useEffect(()=>{
+    router.push(`/${active}`)
+  },[active])
 
   return (
     <>
-      <li className={`flex items-center hover:cursor-pointer ${active === 'home' ? 'border-b-2 border-black' : ''}`} onClick={() => handleNavClick('home')}>
+      <li className={`flex items-center hover:cursor-pointer ${active === "dashboard" ? 'border-b-2 border-black' : ''}`} onClick={() => handleNavClick("dashboard")}>
         <FaHome className="text-gray-700 hidden md:inline" />
         <span className="hidden md:block py-2 px-3 text-gray-700">Home</span>
         <FaHome className="text-gray-700 md:hidden" />
       </li>
-      <li className={`flex items-center hover:cursor-pointer ${active === 'jobs' ? 'border-b-2 border-black' : ''}`} onClick={() => handleNavClick('jobs')}>
+      <li className={`flex items-center hover:cursor-pointer ${active === 'job' ? 'border-b-2 border-black' : ''}`} onClick={() => handleNavClick('job')}>
         <FaBriefcase className="text-gray-700 hidden md:inline" />
         <span className="hidden md:block py-2 px-3 text-gray-700">Jobs</span>
         <FaBriefcase className="text-gray-700 md:hidden" />

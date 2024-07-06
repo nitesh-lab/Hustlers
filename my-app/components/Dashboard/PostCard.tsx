@@ -244,7 +244,9 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(({
 
   return (
     <div className="w-[100%] relative" ref={ref}>
-      <div className="max-w-[90%] mx-[5%] sm:max-w-lg my-[1rem] sm:my-[1.5rem] sm:mx-auto bg-white border rounded-lg shadow-md">
+      <div className="max-w-[90%] mx-[5%] sm:max-w-[512px]  my-[1rem] sm:my-[1.5rem] 
+      sm:mx-auto bg-white border rounded-lg shadow-md">
+        
         <div onClick={()=>handleClick()} className="flex items-center p-4">
           <div className="w-10 h-10 rounded-full bg-gray-300">
             {profilePicture && (
@@ -272,10 +274,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(({
         {photo && (
           <div className="relative">
             <Image src={photo} alt="Post image" className="w-full" width={500} height={300} />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-12 h-12 border-4 border-red-500 rounded-full absolute left-1/4 top-1/4"></div>
-              <div className="w-12 h-12 border-4 border-red-500 rounded-full absolute right-1/4 top-1/4"></div>
-            </div>
+            
           </div>
         )}
 
