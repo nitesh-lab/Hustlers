@@ -329,21 +329,6 @@ export async function getPosts(req: Request, res: Response) {
   try {
     const { uid, time } = req.body;
 
-    // Fetch the cached posts from Redis
-    // const cachedData = await client.get(`${uid}posts`);
-    // if (cachedData) {
-    //   const data = JSON.parse(cachedData);
-    //   const time_curr=new Date(data[data.length-1]?.posted).getTime();
-    //   console.log("currtime")
-    //   console.log(time_curr)
-    //   console.log("time")
-    //   console.log(time)
-    //   if(time_curr<time){
-    //     console.log("came for cache")
-    //   return res.status(200).json({ posts: data, time: data[data.length - 1]?.posted });
-    //   }
-    // }
-
     // Fetch the user's posts and their connections' posts
     const user = await User.findById(uid)
       .populate({
