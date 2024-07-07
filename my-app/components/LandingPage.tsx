@@ -6,12 +6,12 @@ import React, { useEffect } from 'react'
  export default function LandingPage() {
   return (
     <>
-     <div className="relative bg-gray-800 top-[1rem] items-center justify-center w-full overflow-x-hidden overflow-y-hidden lg:pt-40 lg:pb-20 xl:pt-40 xl:pb-30">
+     <div className="relative  bg-gray-800 top-[1rem] items-center justify-center w-full overflow-x-hidden overflow-y-hidden lg:pt-40 lg:pb-20 xl:pt-40 xl:pb-30">
         <div
             className="container flex flex-col items-center justify-between h-full max-w-6xl px-8 mx-auto -mt-32 lg:flex-row xl:px-0">
             <div
-                className="z-30 flex flex-col items-center w-full max-w-xl pt-48 text-center lg:items-start lg:w-1/2 lg:pt-20 xl:pt-40 lg:text-left">
-                <h1 className="relative mb-4 text-3xl font-black leading-tight text-white sm:text-6xl xl:mb-8">
+                className="z-30  min-h-[350px] flex flex-col items-center w-full max-w-xl pt-48 text-center lg:items-start lg:w-1/2 lg:pt-20 xl:pt-40 lg:text-left">
+                <h1 className="relative mt-[1rem] mb-4 text-3xl font-black leading-tight text-white sm:text-6xl xl:mb-8">
                     Hustlers</h1>
                 <p  className="pr-0 mb-8 text-base text-white sm:text-lg xl:text-xl lg:pr-20">
                    Ready to start your
@@ -57,7 +57,7 @@ import React, { useEffect } from 'react'
      </div>
      
      <div id="testimonials"
-        className="flex items-center justify-center w-full px-8 py-5 border-t bg-gray-800 border-gray-200 md:py-10 lg:py-24 xl:py-20 xl:px-0">
+        className="flex mt-[2rem] items-center justify-center w-full px-8 py-5 border-t bg-gray-800 border-gray-200 md:py-10 lg:py-24 xl:py-20 xl:px-0">
         <div className="max-w-6xl mx-auto">
             <div className="flex-col items-center ">
                 <div className="flex flex-col items-center justify-center w-full h-full max-w-2xl pr-8 mx-auto text-center">

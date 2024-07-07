@@ -1,30 +1,19 @@
 // SearchContext.tsx
 import React, { createContext, useState, ReactNode, ChangeEvent } from 'react';
 
-// Define types for search parameters
-interface JobType {
-  fullTime: boolean;
-  partTime: boolean;
-  internship: boolean;
-}
-
-interface WorkType {
-  onSite: boolean;
-  remote: boolean;
-  hybrid: boolean;
-}
 
 interface SearchParams {
-  jobType: JobType;
-  workType: WorkType;
+  jobType: "fullTime"|"partTime"|"internship";
+  workType: "onSite"|"remote"|"hybrid";
   query: string;
   location: string;
+  isLoading:boolean,
 }
 
 interface SearchContextProps {
   searchParams: SearchParams;
-  handleJobTypeChange: (type: keyof JobType) => void;
-  handleWorkTypeChange: (type: keyof WorkType) => void;
+  handleJobTypeChange: (type:"fullTime"|"partTime"|"internship" ) => void;
+  handleWorkTypeChange: (type: "onSite"|"remote"|"hybrid" ) => void;
   handleQueryChange: (e: string) => void;
   handleLocationChange: (e: string) => void;
   handleSearch: () => void;
@@ -32,18 +21,11 @@ interface SearchContextProps {
 
 const defaultValues: SearchContextProps = {
   searchParams: {
-    jobType: {
-      fullTime: true,
-      partTime: false,
-      internship: false,
-    },
-    workType: {
-      onSite: false,
-      remote: false,
-      hybrid: false,
-    },
+    jobType: "fullTime",
+    workType: "onSite",
     query: '',
     location: '',
+    isLoading:false,
   },
   handleJobTypeChange: () => {},
   handleWorkTypeChange: () => {},
@@ -58,17 +40,17 @@ export const SearchProvider = ({ children }: { children: ReactNode }) => {
 
   const [searchParams, setSearchParams] = useState<SearchParams>(defaultValues.searchParams);
 
-  const handleJobTypeChange = (type: keyof JobType) => {
+  const handleJobTypeChange = (inp:"fullTime"|"partTime"|"internship") => {
     setSearchParams((prev) => ({
       ...prev,
-      jobType: { ...prev.jobType, [type]: !prev.jobType[type] },
+      jobType: inp,
     }));
   };
 
-  const handleWorkTypeChange = (type: keyof WorkType) => {
+  const handleWorkTypeChange = (inp: "onSite"|"remote"|"hybrid") => {
     setSearchParams((prev) => ({
       ...prev,
-      workType: { ...prev.workType, [type]: !prev.workType[type] },
+      workType:inp
     }));
   };
 
@@ -83,8 +65,13 @@ export const SearchProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const handleSearch = () => {
-    console.log('Searching with params:', searchParams);
-    // Implement search functionality here
+
+      setSearchParams((prev) => ({
+        ...prev,
+        isLoading: true,
+      }));
+   
+      
   };
 
   return (

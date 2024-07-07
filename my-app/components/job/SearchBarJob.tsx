@@ -1,5 +1,5 @@
 "use client";
-import { axiosInstance } from '@/lib/axiosInstance';
+
 import React, { useState, useEffect, ChangeEvent } from 'react';
 import { FaSearch, FaTimes } from 'react-icons/fa';
 

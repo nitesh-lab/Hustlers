@@ -19,8 +19,10 @@ if (session && session.user &&  session.user.email && session.user.email?.length
   
   return (
     <>
+    <div className="bg-gray-800">
     <NavBar/>
     <LandingPage/>
+    </div>
     </>
   )
 }

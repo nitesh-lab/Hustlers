@@ -17,7 +17,7 @@ const LeftSection= () => {
           <label className="flex items-center">
             <input
               type="checkbox"
-              checked={searchParams.jobType.fullTime}
+              checked={searchParams.jobType==="fullTime"}
               onChange={() => handleJobTypeChange('fullTime')}
               className="form-checkbox h-4 w-4 text-green-600"
             />
@@ -26,7 +26,7 @@ const LeftSection= () => {
           <label className="flex items-center">
             <input
               type="checkbox"
-              checked={searchParams.jobType.internship}
+              checked={searchParams.jobType==="internship"}
               onChange={() => handleJobTypeChange('internship')}
               className="form-checkbox h-4 w-4 text-green-600"
             />
@@ -35,7 +35,7 @@ const LeftSection= () => {
           <label className="flex items-center">
             <input
               type="checkbox"
-              checked={searchParams.jobType.partTime}
+              checked={searchParams.jobType==="partTime"}
               onChange={() => handleJobTypeChange('partTime')}
               className="form-checkbox h-4 w-4 text-green-600"
             />
@@ -51,7 +51,7 @@ const LeftSection= () => {
           <label className="flex items-center">
             <input
               type="checkbox"
-              checked={searchParams.workType.onSite}
+              checked={searchParams.workType==="onSite"}
               onChange={() => handleWorkTypeChange('onSite')}
               className="form-checkbox h-4 w-4 text-green-600"
             />
@@ -60,7 +60,7 @@ const LeftSection= () => {
           <label className="flex items-center">
             <input
               type="checkbox"
-              checked={searchParams.workType.remote}
+              checked={searchParams.workType==="remote"}
               onChange={() => handleWorkTypeChange('remote')}
               className="form-checkbox h-4 w-4 text-green-600"
             />
@@ -69,7 +69,7 @@ const LeftSection= () => {
           <label className="flex items-center">
             <input
               type="checkbox"
-              checked={searchParams.workType.hybrid}
+              checked={searchParams.workType==="hybrid"}
               onChange={() => handleWorkTypeChange('hybrid')}
               className="form-checkbox h-4 w-4 text-green-600"
             />

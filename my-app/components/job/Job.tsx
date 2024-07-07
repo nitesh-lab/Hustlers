@@ -94,8 +94,8 @@ const TopSection = () => {
       <div className="flex flex-col md:flex-row items-center md:space-x-2 space-y-2 md:space-y-0 w-full md:w-auto">
         <h1 className="text-2xl font-semibold">Hustlers</h1>
         <div className="flex flex-col items-center md:items-start space-y-2 md:space-y-0 md:ml-4">
-          <button className="text-blue-500 font-semibold">UX Designer</button>
-          <span className="text-sm text-green-500">(4 New)</span>
+         {searchParams.query.length>0  && searchParams.isLoading &&  <><button className="text-blue-500 font-semibold">{searchParams.query}</button>
+          <span className="text-sm text-green-500">(New)</span></>}
         </div>
       </div>
       <div className="flex flex-col sm:flex-row gap-4 flex-grow items-center w-full md:w-auto">
