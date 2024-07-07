@@ -13,7 +13,7 @@ export default function DropDown({image,name,email}:{image:string,name:string,em
   const active = useAppSelector((state) => state.dashboard.active);
   const dispatch = useAppDispatch();
 
-  function handleNavClick(navItem:"home" | "network" | "messaging" | "jobs") {
+  function handleNavClick(navItem:"dashboard" | "network" | "messaging" | "job") {
     dispatch(active_action(navItem));
     setDropdownOpen(false); // Close dropdown after clicking an item
   }

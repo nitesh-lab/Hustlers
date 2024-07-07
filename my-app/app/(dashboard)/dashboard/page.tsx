@@ -16,6 +16,7 @@ export default async function Page() {
 
   let user = {};
 
+  
   if (session && session.user && session.user.email && session.user.email?.length > 0) {
     try {
       const res = await axiosInstance.post("api/user/findUser", { email: session.user.email, name: session.user.name });
