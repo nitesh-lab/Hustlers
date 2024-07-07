@@ -24,7 +24,6 @@ app.get("/check",(req,res)=>{
     res.send(200).json({"msg":"working"})
 })
 
-
 app.post("/main",async(req,res)=>{
         try {
           const { uid, time } = req.body;

@@ -1,57 +1,37 @@
-"use client";
-import React, { useState } from "react";
+import React, { ChangeEvent } from 'react';
+import { FaSearch, FaTimes } from 'react-icons/fa';
 
-export default function SearchBar() {
-  const [query, setQuery] = useState('');
-  const [filters, setFilters] = useState({
-    experience: '',
-    city: '',
-    distance: '',
-  });
+interface InputJobProps {
+  value: string;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  placeholder?: string;
+}
+
+const InputJob: React.FC<InputJobProps> = ({ value, onChange, placeholder }) => {
+  const clearSearch = () => {
+    onChange({ target: { value: '' } } as ChangeEvent<HTMLInputElement>);
+  };
 
   return (
-    <div className="relative mb-6 flex items-center">
-      <input
-        type="text"
-        className="w-2/3 p-2 border border-gray-300 rounded-l-lg"
-        placeholder="Search for jobs"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-      />
-      <div className="w-1/3 flex">
-        <select
-          className="w-1/3 p-2 border border-gray-300 rounded-r-none"
-          value={filters.experience}
-          onChange={(e) => setFilters({ ...filters, experience: e.target.value })}
-        >
-          <option value="">Experience</option>
-          <option value="0-2">0-2 years</option>
-          <option value="2-5">2-5 years</option>
-          <option value="5+">5+ years</option>
-        </select>
-        <select
-          className="w-1/3 p-2 border-t border-b border-gray-300"
-          value={filters.city}
-          onChange={(e) => setFilters({ ...filters, city: e.target.value })}
-        >
-          <option value="">City</option>
-          <option value="Remote">Remote</option>
-          <option value="Pune">Pune</option>
-          <option value="Mumbai">Mumbai</option>
-          <option value="India">India</option>
-        </select>
-        <select
-          className="w-1/3 p-2 border border-gray-300 rounded-r-lg"
-          value={filters.distance}
-          onChange={(e) => setFilters({ ...filters, distance: e.target.value })}
-        >
-          <option value="">Distance</option>
-          <option value="5km">5km</option>
-          <option value="10km">10km</option>
-          <option value="20km">20km</option>
-        </select>
+    <div className="max-w-[150px] md:w-full sm:max-w-md mx-auto">
+      <div className="relative">
+        <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+        <input
+          type="text"
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder || "Search"}
+          className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        {value && (
+          <FaTimes
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer"
+            onClick={clearSearch}
+          />
+        )}
       </div>
     </div>
   );
 };
 
+export default InputJob;

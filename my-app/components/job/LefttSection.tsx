@@ -1,28 +1,12 @@
-import React, { ChangeEvent } from 'react';
+import { SearchContext } from '@/Context/JobProvider';
+import React, { ChangeEvent, useContext } from 'react';
 
-interface Props {
-  jobType: {
-    fullTime: boolean;
-    internship: boolean;
-    partTime: boolean;
-  };
-  workType: {
-    onSite: boolean;
-    remote: boolean;
-    hybrid: boolean;
-  };
-  onJobTypeChange: (type: 'fullTime' | 'internship' | 'partTime') => void;
-  onWorkTypeChange: (type: 'onSite' | 'remote' | 'hybrid') => void;
-}
 
-const LeftSection: React.FC<Props> = ({ jobType, workType, onJobTypeChange, onWorkTypeChange }) => {
-  const handleJobTypeChange = (type: 'fullTime' | 'internship' | 'partTime') => {
-    onJobTypeChange(type);
-  };
 
-  const handleWorkTypeChange = (type: 'onSite' | 'remote' | 'hybrid') => {
-    onWorkTypeChange(type);
-  };
+const LeftSection= () => {
+
+  const {handleJobTypeChange,handleWorkTypeChange,searchParams}=useContext(SearchContext);
+
 
   return (
     <div className="p-4 rounded-xl space-y-4">
@@ -33,7 +17,7 @@ const LeftSection: React.FC<Props> = ({ jobType, workType, onJobTypeChange, onWo
           <label className="flex items-center">
             <input
               type="checkbox"
-              checked={jobType.fullTime}
+              checked={searchParams.jobType.fullTime}
               onChange={() => handleJobTypeChange('fullTime')}
               className="form-checkbox h-4 w-4 text-green-600"
             />
@@ -42,7 +26,7 @@ const LeftSection: React.FC<Props> = ({ jobType, workType, onJobTypeChange, onWo
           <label className="flex items-center">
             <input
               type="checkbox"
-              checked={jobType.internship}
+              checked={searchParams.jobType.internship}
               onChange={() => handleJobTypeChange('internship')}
               className="form-checkbox h-4 w-4 text-green-600"
             />
@@ -51,7 +35,7 @@ const LeftSection: React.FC<Props> = ({ jobType, workType, onJobTypeChange, onWo
           <label className="flex items-center">
             <input
               type="checkbox"
-              checked={jobType.partTime}
+              checked={searchParams.jobType.partTime}
               onChange={() => handleJobTypeChange('partTime')}
               className="form-checkbox h-4 w-4 text-green-600"
             />
@@ -67,7 +51,7 @@ const LeftSection: React.FC<Props> = ({ jobType, workType, onJobTypeChange, onWo
           <label className="flex items-center">
             <input
               type="checkbox"
-              checked={workType.onSite}
+              checked={searchParams.workType.onSite}
               onChange={() => handleWorkTypeChange('onSite')}
               className="form-checkbox h-4 w-4 text-green-600"
             />
@@ -76,7 +60,7 @@ const LeftSection: React.FC<Props> = ({ jobType, workType, onJobTypeChange, onWo
           <label className="flex items-center">
             <input
               type="checkbox"
-              checked={workType.remote}
+              checked={searchParams.workType.remote}
               onChange={() => handleWorkTypeChange('remote')}
               className="form-checkbox h-4 w-4 text-green-600"
             />
@@ -85,7 +69,7 @@ const LeftSection: React.FC<Props> = ({ jobType, workType, onJobTypeChange, onWo
           <label className="flex items-center">
             <input
               type="checkbox"
-              checked={workType.hybrid}
+              checked={searchParams.workType.hybrid}
               onChange={() => handleWorkTypeChange('hybrid')}
               className="form-checkbox h-4 w-4 text-green-600"
             />
