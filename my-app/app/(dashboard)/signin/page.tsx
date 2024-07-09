@@ -14,7 +14,7 @@ export default async function page() {
 
     const res=await axiosInstance.post("api/user/create",{email:session.user.email,name:session.user.name,image:session.user.image})
   if(res.status==200){
-   redirect("/dashboard");
+   redirect("/company");
   }
    
   }

@@ -7,12 +7,19 @@ import { signIn } from 'next-auth/react';
 import { useAppDispatch, useAppSelector } from '../../lib/reduxhooks';
 import { useRouter } from 'next/navigation';
 
-export interface user_obj{
-  name:string,
-  email:string,
-  _id:string,
-  profile_url:string
+export interface user_obj {
+  name: string;
+  email: string;
+  _id: string;
+  profile_url: string;
+  Company?: {
+    name: string;
+    website?: string;
+    image: string;
+    location: string;
+  }[];
 }
+
 
  export default function SignUpForm() {
   const loggedIn=useAppSelector((s)=>s.auth.isLoggedIn);
@@ -144,7 +151,7 @@ export interface user_obj{
           </div>
         </div>
         <div className="mt-6 text-center">
-          <p className="text-gray-400">
+          {/* <p className="text-gray-400">
             By signing up, you are creating a Hustlers account, and you agree to Hustlers{' '}
             <a href="#" className="text-blue-500 hover:underline">
               Terms of Use
@@ -154,11 +161,11 @@ export interface user_obj{
               Privacy Policy
             </a>
             .
-          </p>
+          </p> */}
           <p className="mt-4 text-gray-400">
-            Already have an account?{' '}
+             Have an Business Account?{' '}
             <Link href="/signin" className="text-blue-500 hover:underline">
-              Login here
+              Hire here
             </Link>
             .
           </p>

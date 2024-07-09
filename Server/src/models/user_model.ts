@@ -21,6 +21,8 @@ export interface UserData extends Document {
     isPasswordCorrect?(password: string): Promise<boolean>;
     generateAccessToken?(): string;
     generateSecretToken?(): string;
+    hasBusiness:boolean,
+    Company:[mongoose.Types.ObjectId]
 }
 
 const UserSchema = new Schema<UserData>({
@@ -36,11 +38,12 @@ const UserSchema = new Schema<UserData>({
             }
     }
 ],
-
    isActive: { type: Boolean, default: false },
     lastSeen: { type: String, default: "0" },
     Posts: { type: [{ type: Schema.Types.ObjectId, ref: "Post" }] },
-    refreshToken: { type: String }
+    refreshToken: { type: String },
+    Company:[{type:mongoose.Types.ObjectId,ref:"Company"}],
+    hasBusiness:{type:Boolean,default:false}
 }, {
     timestamps: true
 });

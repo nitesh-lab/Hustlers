@@ -6,25 +6,7 @@ import { Job } from "../models/job_model";
 export default async function createjob(req:Request,res:Response) {
     
   try {
-    const { jobTitle, jobType, openRoles, category, stipend,email } = req.body;
-
-   const work_user= await User.findOne({email:email})
-
-    if(!work_user){
-        return res.status(400).json({ message: 'No Such user' });
-    }
-
-    // jobTitle: string;
-    // jobType: 'FullTime' | 'PartTime' | 'Intern';
-    // openRoles: string;
-    // category: 'Remote' | 'OnSite';
-    // stipend: string;
-    // work_id: string;
-    // posted_time: Date;
-    // jobLocation?: string;
-    // experience: string;
-    // company: Schema.Types.ObjectId | CompanyDocument;
-
+    const { jobTitle, jobType, openRoles, category, stipend,user,experience } = req.body;
 
     const newJob = new Job({
       jobTitle,
@@ -32,7 +14,11 @@ export default async function createjob(req:Request,res:Response) {
       openRoles,
       category,
       stipend,
-      work_id:work_user._id,
+      jobLocation:user.Company.location,
+      posted_time:new Date().toLocaleDateString(),
+      work_id:user._id,
+      company:user.Company[0]._id,
+      experience:experience
     });
 
     await newJob.save();
@@ -41,9 +27,5 @@ export default async function createjob(req:Request,res:Response) {
   } catch (error) {
     res.status(500).json({ message: 'Error creating job', error: error.message });
   }
-
-
-
-
 
 }

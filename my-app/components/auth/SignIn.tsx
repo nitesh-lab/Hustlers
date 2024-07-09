@@ -32,7 +32,7 @@ export function LoginForm(){
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900">
       <div className="max-w-md w-full  p-8 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold text-white mb-8 text-center">Login to your Account</h2>
+        <h2 className="text-2xl font-bold text-white mb-8 text-center">Create your Personal Business Account</h2>
         {/* <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-300">
@@ -103,7 +103,7 @@ export function LoginForm(){
             </button>
           </div>
         </div>
-        <div className="mt-6 text-center">
+        {/* <div className="mt-6 text-center">
           <p className="text-gray-400">
             Dont have an account?{' '}
            <Link href={"/signup"} className="text-blue-500 hover:underline">
@@ -111,7 +111,7 @@ export function LoginForm(){
             </Link>
             .
           </p>
-        </div>
+        </div> */}
       </div>
     </div>
   );

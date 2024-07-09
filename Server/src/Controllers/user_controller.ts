@@ -3,21 +3,32 @@ import { User, UserData } from "../models/user_model";
 import { client } from "../utils/redisConnect";
 import { Post } from "../models/post_model";
 import uploadCloudinary from "../utils/upload";
-import {  Types } from "mongoose";
+import mongoose, {  Types } from "mongoose";
+import { Company } from "../models/job_model"
+
+
+
 
 export async function Check_CreateUser(req: Request, res: Response) {
-  const { name, email, image } = req.body;
+  const { name, email, image,type } = req.body;
 
   let user = {};
 
-  const response = await User.findOne<UserData>({ $or: [{ name: name }, { email: email }] });
+  if(type &&  type==="company"){
+    const ans=await User.findOne<UserData>({ $or: [{ name: name||"" }, { email: email||"" }] })
+    .populate({
+      path:"Company"
+    }).select("-password -createdAt -updatedAt -createdAt").exec();
+    
+    if(ans){
+      return res.status(200).json({ "message": "done",user:ans });
+    }
+  }
+  else{
+  const response = await User.findOne<UserData>({ $or: [{ name: name||"" }, { email: email||"" }] });
 
   if (response) {
-    const { _id, profile_url, name, isActive, lastSeen } = response;
-
-    await client.json.set(JSON.stringify(_id), "$", { _id, profile_url, name, isActive, lastSeen }); // set in cache here
-
-    return res.status(200).json({ "message": "done" });
+    return res.status(200).json({ "message": "done",user:response });
   } else {
     user = await User.create({
       name: name || "",
@@ -29,6 +40,7 @@ export async function Check_CreateUser(req: Request, res: Response) {
 
     return res.status(200).json({ "message": "done" });
   }
+}
 }
 
 export async function FindUser(req: Request, res: Response) {
@@ -414,6 +426,46 @@ export async function getPosts(req: Request, res: Response) {
   }
 }
 
+export async function createBusiness(req: Request, res: Response) {
+  try {
+    const { name, location, website, email } = req.body;
 
+    if (!name || !location || !email) {
+      return res.status(400).json({ error: 'Name, location, and email are required' });
+    }
 
+    if (!req.file) {
+      return res.status(400).json({ error: 'Image file is required' });
+    }
 
+    const image = await uploadCloudinary(req.file.path);
+
+    const exist=await Company.findOne({"name":name});
+
+    if(exist){
+      return res.status(200).json({ message: 'Already Exist' });
+    }
+
+    const com=await Company.create({
+      name,
+      location,
+      website,
+      image
+    });
+
+    const business_user = await User.findOne({ email });
+
+    if (!business_user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    business_user.Company.push(com._id as unknown as mongoose.Types.ObjectId);  
+    business_user.hasBusiness = true;
+
+    await business_user.save();
+
+    return res.status(201).json({ message: 'Business created successfully', company: com });
+  } catch (error) {
+    return res.status(500).json({ error: 'An error occurred while creating the business' });
+  }
+}
