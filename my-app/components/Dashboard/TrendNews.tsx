@@ -42,7 +42,7 @@ export default function TrendNews() {
           <p className="text-xs text-gray-500 ml-2">Crown each region</p>
         </li>
         <li className="flex items-center">
-          <div className="w-4 h-4 bg-green-500 mr-2"></div>
+          <div className="w-4 h-4 bg-blue-400 mr-2"></div>
           <a href="#" className="text-blue-700 hover:underline">Pinpoint #49</a>
           <p className="text-xs text-gray-500 ml-2">Guess the category</p>
         </li>

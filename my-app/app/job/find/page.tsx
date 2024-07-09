@@ -1,7 +1,10 @@
 import React from 'react'
 import JobSearchPage from '@/components/job/Job'
-export default function page() {
+import { auth } from '@/auth';
+import { user_obj } from '@/components/auth/Signup';
+export default async function page() {
+  const user=await auth();
   return (
-    <JobSearchPage/>
+    <JobSearchPage user={(user?.user) as user_obj}/>
   )
 }

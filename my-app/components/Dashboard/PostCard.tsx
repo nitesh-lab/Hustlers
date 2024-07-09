@@ -261,7 +261,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(({
           </div>
           <div className="ml-3 flex items-center space-x-2">
             <p className="text-sm font-medium">{name}</p>
-            {isOnline && <div className="w-2.5 h-2.5 rounded-full bg-green-500"></div>}
+            {isOnline && <div className="w-2.5 h-2.5 rounded-full bg-blue-400"></div>}
           </div>
           <button className="ml-auto text-blue-600 font-medium">+ Follow</button>
         </div>

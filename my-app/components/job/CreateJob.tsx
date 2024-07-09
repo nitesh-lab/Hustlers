@@ -1,115 +1,188 @@
-"use client"
+"use client";
 
-import React, { useState } from 'react';
+import { axiosInstance } from "@/lib/axiosInstance";
+import React, { useState } from "react";
+import { user_obj } from "../auth/Signup";
+import Loader from "../common/Loader";
 
-const CreateJob = () => {
-  const [employmentType, setEmploymentType] = useState([]);
-  const [workingSchedule, setWorkingSchedule] = useState('');
-  const [salaryType, setSalaryType] = useState('');
-  const [hourlyRate, setHourlyRate] = useState('');
-  const [salaryNegotiable, setSalaryNegotiable] = useState(false);
-  const [hiringMultiple, setHiringMultiple] = useState(false);
 
-  const handleEmploymentTypeChange = (type) => {
-    setEmploymentType((prev) =>
-      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
-    );
+interface error_type{
+  jobTitle:string,stipend:string,openRoles:string
+}
+
+const NewJobForm = ({user}:{user:user_obj}) => {
+  const [jobTitle, setJobTitle] = useState("Software Engineer");
+  const [jobType, setJobType] = useState("FullTime");
+  const [openRoles, setOpenRoles] = useState("");
+  const [category, setCategory] = useState("Remote");
+  const [stipend, setStipend] = useState("");
+  const [isLoading,setisloading]=useState(false);
+
+  const [errors, setErrors] = useState({jobTitle:"",stipend:"",openRoles:""});
+
+  const handleJobTitleChange = (e:string) => {
+    setJobTitle(e);
+  };
+
+  const handleJobTypeChange = (type:string) => {
+    setJobType(type);
+  };
+
+  const handleOpenRolesChange = (e:string) => {
+    setOpenRoles(e);
+  };
+
+  const handleCategoryChange = (cat:string) => {
+    setCategory(cat);
+  };
+
+  const validateForm = () => {
+    const newErrors:error_type={} as error_type
+
+    if (!jobTitle) newErrors.jobTitle = "Job title is required";
+    if (!stipend) newErrors.stipend = "Stipend is required";
+    if (!openRoles || isNaN(Number(openRoles)) || Number(openRoles) <= 0)
+      newErrors.openRoles = "Please enter a valid number of open roles";
+
+    return newErrors;
+  };
+
+const handleSubmit =  async () => {
+   
+    const formErrors = validateForm();
+    console.log(formErrors)
+    if (Object.keys(formErrors).length >0) {
+      setErrors(formErrors);
+      return;
+    }
+    setisloading(true);
+    setErrors({jobTitle:"",openRoles:"",stipend:""});
+    // Handle form submission (e.g., send data to API)
+   
+      const obj={jobTitle,
+      jobType,
+      openRoles,
+      category,
+      stipend,
+    }
+
+
+  const res=await axiosInstance.post("api/job/createjob",{...obj,email:user?.email})
+
+    // Reset form
+    setJobTitle("");
+    setJobType("FullTime");
+    setOpenRoles("1");
+    setCategory("Remote");
+    setStipend("");
+    setisloading(false);
   };
 
   return (
-    <div className="p-8 bg-white rounded-lg shadow-md">
-      <h2 className="text-xl font-bold mb-6">New Job</h2>
-
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">Employment type</label>
-        <div className="flex flex-wrap gap-4">
-          {['Full-time', 'Part-time', 'On demand', 'Negotiable'].map((type) => (
-            <label key={type} className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                checked={employmentType.includes(type)}
-                onChange={() => handleEmploymentTypeChange(type)}
-                className="form-checkbox h-5 w-5 text-blue-600"
-              />
-              <span>{type}</span>
+    <div className="p-6 bg-gray-100 min-h-screen flex flex-col items-center">
+      <div className="max-w-5xl bg-white mt-8 mx-auto p-6 rounded-md shadow-md w-full">
+        <h1 className="text-2xl font-bold mb-4">Create Job Post</h1>
+        {/* <form onSubmit={handleSubmit}> */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              What kind of job is this?
             </label>
-          ))}
-        </div>
-      </div>
-
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">Working schedule</label>
-        <select
-          value={workingSchedule}
-          onChange={(e) => setWorkingSchedule(e.target.value)}
-          className="form-select mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-        >
-          <option value="">Pick working schedule</option>
-          <option value="Monday to Friday">Monday to Friday</option>
-          <option value="Weekend availability">Weekend availability</option>
-          <option value="Day shift">Day shift</option>
-        </select>
-      </div>
-
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">Salary</label>
-        <div className="flex flex-wrap gap-4">
-          {['Hourly', 'Custom'].map((type) => (
-            <label key={type} className="flex items-center space-x-2">
-              <input
-                type="radio"
-                name="salaryType"
-                value={type}
-                checked={salaryType === type}
-                onChange={() => setSalaryType(type)}
-                className="form-radio h-5 w-5 text-blue-600"
-              />
-              <span>{type}</span>
-            </label>
-          ))}
-        </div>
-        {salaryType === 'Hourly' && (
-          <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Hourly rate</label>
             <input
-              type="number"
-              value={hourlyRate}
-              onChange={(e) => setHourlyRate(e.target.value)}
-              className="form-input mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              placeholder="$35"
+              type="text"
+              className="w-full p-2 border border-gray-200 outline-none rounded-md"
+              value={jobTitle}
+              onChange={(e)=>{handleJobTitleChange(e.target.value)}}
             />
-            <label className="flex items-center mt-4 space-x-2">
-              <input
-                type="checkbox"
-                checked={salaryNegotiable}
-                onChange={() => setSalaryNegotiable(!salaryNegotiable)}
-                className="form-checkbox h-5 w-5 text-blue-600"
-              />
-              <span>Salary is negotiable</span>
-            </label>
+            {errors.jobTitle && (
+              <p className="text-red-500 text-sm">{errors.jobTitle}</p>
+            )}
           </div>
-        )}
-      </div>
-
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">Hiring multiple candidates?</label>
-        <label className="flex items-center space-x-2">
-          <input
-            type="checkbox"
-            checked={hiringMultiple}
-            onChange={() => setHiringMultiple(!hiringMultiple)}
-            className="form-checkbox h-5 w-5 text-blue-600"
-          />
-          <span>Yes, I am hiring multiple candidates</span>
-        </label>
-      </div>
-
-      <div className="flex justify-between mt-6">
-        <button className="py-2 px-4 bg-gray-500 text-white rounded-md">Back: About</button>
-        <button className="py-2 px-4 bg-blue-600 text-white rounded-md">Next: Application</button>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Choose a job type
+            </label>
+            <div className="flex space-x-2">
+              {["FullTime", "PartTime", "Intern"].map((type) => (
+                <button
+                  type="button"
+                  key={type}
+                  className={`p-2 rounded-md ${
+                    jobType === type
+                      ? "bg-blue-400 text-white"
+                      : "bg-gray-200 text-gray-700"
+                  }`}
+                  onClick={() => handleJobTypeChange(type)}
+                >
+                  {type}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Pay
+            </label>
+            <input
+              type="text"
+              className="w-full p-2 border border-gray-200 outline-none rounded-md"
+              value={stipend}
+              onChange={(e) => setStipend(e.target.value)}
+            />
+            {errors.stipend && (
+              <p className="text-red-500 text-sm">{errors.stipend}</p>
+            )}
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              How many open roles?
+            </label>
+            <input
+              type="text"
+              className="w-full p-2 border border-gray-200 outline-none rounded-md"
+              value={openRoles}
+              onChange={(e)=>{handleOpenRolesChange(e.target.value)}}
+            />
+            {errors.openRoles && (
+              <p className="text-red-500 text-sm">{errors.openRoles}</p>
+            )}
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Choose a category for this job
+              <br />
+              <p className="text-red-500">(OnSite feature coming soon.)</p>
+            </label>
+            <div className="flex space-x-2">
+              {["Remote"].map((cat) => (
+                <button
+                  type="button"
+                  key={cat}
+                  className={`p-2 rounded-md ${
+                    category === cat
+                      ? "bg-blue-400 text-white"
+                      : "bg-gray-200 text-gray-700"
+                  }`}
+                  onClick={() => handleCategoryChange(cat)}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="flex w-full justify-center">
+            <button
+              type="submit"
+              className="mt-4 p-2 bg-blue-500 text-white rounded-md max-w-[200px]"
+            onClick={()=>handleSubmit()}
+            disabled={isLoading}
+            >
+             {isLoading ? <Loader/> : "Post new job"}
+            </button>
+          </div>
+        {/* </form> */}
       </div>
     </div>
   );
 };
 
-export default CreateJob;
+export default NewJobForm;
