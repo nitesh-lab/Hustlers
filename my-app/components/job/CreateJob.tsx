@@ -1,11 +1,12 @@
-"use client";
+ "use client";
 
 import { axiosInstance } from "@/lib/axiosInstance";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { user_obj } from "../auth/Signup";
 import Loader from "../common/Loader";
 import Image from "next/image";
 import { BiCheck } from "react-icons/bi";
+import { useRouter } from "next/navigation";
 
 
 interface error_type{
@@ -13,6 +14,9 @@ interface error_type{
 }
 
 const NewJobForm = ({user}:{user:user_obj}) => {
+
+
+
   const [jobTitle, setJobTitle] = useState("Software Engineer");
   const [jobType, setJobType] = useState("FullTime");
   const [openRoles, setOpenRoles] = useState("");
@@ -22,6 +26,13 @@ const NewJobForm = ({user}:{user:user_obj}) => {
   const [Experience,setExperience]=useState("");
 
   const [errors, setErrors] = useState({jobTitle:"",stipend:"",openRoles:"",Experience:""});
+  const router=useRouter();
+
+useEffect(()=>{
+  if(user && !user.hasBusiness){
+    router.push("/company");
+  }
+},[user])
 
   const handleJobTitleChange = (e:string) => {
     setJobTitle(e);
@@ -52,7 +63,8 @@ const NewJobForm = ({user}:{user:user_obj}) => {
   };
 
 const handleSubmit =  async () => {
-   
+
+  
     const formErrors = validateForm();
     console.log(formErrors)
     if (Object.keys(formErrors).length >0) {

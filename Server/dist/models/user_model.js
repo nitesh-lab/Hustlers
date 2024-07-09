@@ -46,7 +46,9 @@ const UserSchema = new mongoose_1.Schema({
     isActive: { type: Boolean, default: false },
     lastSeen: { type: String, default: "0" },
     Posts: { type: [{ type: mongoose_1.Schema.Types.ObjectId, ref: "Post" }] },
-    refreshToken: { type: String }
+    refreshToken: { type: String },
+    Company: [{ type: mongoose_1.default.Types.ObjectId, ref: "Company" }],
+    hasBusiness: { type: Boolean, default: false }
 }, {
     timestamps: true
 });

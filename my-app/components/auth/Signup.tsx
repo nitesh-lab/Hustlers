@@ -12,6 +12,7 @@ export interface user_obj {
   email: string;
   _id: string;
   profile_url: string;
+  hasBusiness?:boolean,
   Company?: {
     name: string;
     website?: string;

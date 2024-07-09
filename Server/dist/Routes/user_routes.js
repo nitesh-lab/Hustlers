@@ -14,4 +14,5 @@ exports.user_router.route("/comment").post(user_controller_1.CommentUser);
 exports.user_router.route("/getPosts").post(user_controller_1.getPosts);
 exports.user_router.route("/follow").post(user_controller_1.FollowUser);
 exports.user_router.route("/unfollow").post(user_controller_1.UnfollowUser);
+exports.user_router.route("/createBusiness").post(multer_1.upload.single("image"), user_controller_1.createBusiness);
 //# sourceMappingURL=user_routes.js.map

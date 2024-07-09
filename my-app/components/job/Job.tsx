@@ -1,17 +1,18 @@
 "use client"
 
-import React from "react";
+import React, { useContext } from "react";
 
 import LeftSection from './LefttSection';
 
 import { user_obj } from '../auth/Signup';
 import JobCard from './JobCard';
-import { SearchProvider } from "@/Context/JobProvider";
+import { SearchContext, SearchProvider } from "@/Context/JobProvider";
 import { TopSection } from "./TopSection";
+import JobsList from "./JobsList";
 
 
 const JobSearchPage=({user}:{user:user_obj}) => {
- 
+
   return (
     <SearchProvider>
     <div className="min-h-screen bg-gray-100 p-6">
@@ -25,29 +26,7 @@ const JobSearchPage=({user}:{user:user_obj}) => {
             <div className="flex justify-between items-center mt-4 mb-6">
               <span className="text-gray-700">Search results</span>
             </div>
-            <div className="flex flex-col space-y-6">
-              <JobCard
-                company="Twitter"
-                title="UI/UX Designer"
-                location="Jakarta, Indonesia"
-                salary="$2,000 - $3,000 USD"
-                posted="Posted 10 mins ago"
-              />
-              <JobCard
-                company="Clubhouse"
-                title="UI/UX Designer"
-                location="Jakarta, Indonesia"
-                salary="$3,000 - $3,500 USD"
-                posted="Posted 10 mins ago"
-              />
-              <JobCard
-                company="Quora"
-                title="UI/UX Designer"
-                location="Jakarta, Indonesia"
-                salary="$2,000 - $3,000 USD"
-                posted="Posted 10 mins ago"
-              />
-            </div>
+           <JobsList/>
           </div>
         </div>
       </div>

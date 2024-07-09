@@ -1,7 +1,7 @@
 import {Router} from "express";
-import createjob from "../Controllers/job_controller"
-
+import {createjob, findjobs} from "../Controllers/job_controller"
 
 export const job_router=Router();
 
 job_router.route("/createjob").post(createjob);
+job_router.route("/findjobs").post(findjobs);

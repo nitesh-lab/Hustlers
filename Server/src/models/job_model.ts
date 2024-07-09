@@ -73,9 +73,9 @@ const jobSchema = new Schema<JobDocument>({
     required: true,
   },
   posted_time: {
-    type: Date,
+    type:Date,
     required: true,
-    default: Date.now,
+    default:new Date(),
   },
   jobLocation: {
     type: String,

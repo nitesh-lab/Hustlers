@@ -3,29 +3,39 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getPosts = exports.UnfollowUser = exports.FollowUser = exports.CommentUser = exports.LikeUser = exports.FindUsers = exports.CreatePost = exports.FindUser = exports.Check_CreateUser = void 0;
+exports.createBusiness = exports.getPosts = exports.UnfollowUser = exports.FollowUser = exports.CommentUser = exports.LikeUser = exports.FindUsers = exports.CreatePost = exports.FindUser = exports.Check_CreateUser = void 0;
 const user_model_1 = require("../models/user_model");
 const redisConnect_1 = require("../utils/redisConnect");
 const post_model_1 = require("../models/post_model");
 const upload_1 = __importDefault(require("../utils/upload"));
+const job_model_1 = require("../models/job_model");
 async function Check_CreateUser(req, res) {
-    const { name, email, image } = req.body;
+    const { name, email, image, type } = req.body;
     let user = {};
-    const response = await user_model_1.User.findOne({ $or: [{ name: name }, { email: email }] });
-    if (response) {
-        const { _id, profile_url, name, isActive, lastSeen } = response;
-        await redisConnect_1.client.json.set(JSON.stringify(_id), "$", { _id, profile_url, name, isActive, lastSeen }); // set in cache here
-        return res.status(200).json({ "message": "done" });
+    if (type && type === "company") {
+        const ans = await user_model_1.User.findOne({ $or: [{ name: name || "" }, { email: email || "" }] })
+            .populate({
+            path: "Company"
+        }).select("-password -createdAt -updatedAt -createdAt").exec();
+        if (ans) {
+            return res.status(200).json({ "message": "done", user: ans });
+        }
     }
     else {
-        user = await user_model_1.User.create({
-            name: name || "",
-            email: email || "",
-            profile_url: image || "",
-            isActive: true,
-            lastSeen: Date.now().toString(),
-        });
-        return res.status(200).json({ "message": "done" });
+        const response = await user_model_1.User.findOne({ $or: [{ name: name || "" }, { email: email || "" }] });
+        if (response) {
+            return res.status(200).json({ "message": "done", user: response });
+        }
+        else {
+            user = await user_model_1.User.create({
+                name: name || "",
+                email: email || "",
+                profile_url: image || "",
+                isActive: true,
+                lastSeen: new Date().toISOString(),
+            });
+            return res.status(200).json({ "message": "done" });
+        }
     }
 }
 exports.Check_CreateUser = Check_CreateUser;
@@ -363,4 +373,38 @@ async function getPosts(req, res) {
     }
 }
 exports.getPosts = getPosts;
+async function createBusiness(req, res) {
+    try {
+        const { name, location, website, email } = req.body;
+        if (!name || !location || !email) {
+            return res.status(400).json({ error: 'Name, location, and email are required' });
+        }
+        if (!req.file) {
+            return res.status(400).json({ error: 'Image file is required' });
+        }
+        const image = await (0, upload_1.default)(req.file.path);
+        const exist = await job_model_1.Company.findOne({ "name": name });
+        if (exist) {
+            return res.status(200).json({ message: 'Already Exist' });
+        }
+        const com = await job_model_1.Company.create({
+            name,
+            location,
+            website,
+            image
+        });
+        const business_user = await user_model_1.User.findOne({ email });
+        if (!business_user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        business_user.Company.push(com._id);
+        business_user.hasBusiness = true;
+        await business_user.save();
+        return res.status(201).json({ message: 'Business created successfully', company: com });
+    }
+    catch (error) {
+        return res.status(500).json({ error: 'An error occurred while creating the business' });
+    }
+}
+exports.createBusiness = createBusiness;
 //# sourceMappingURL=user_controller.js.map

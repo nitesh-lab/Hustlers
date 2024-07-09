@@ -35,7 +35,7 @@ export async function Check_CreateUser(req: Request, res: Response) {
       email: email || "",
       profile_url: image || "",
       isActive: true,
-      lastSeen: Date.now().toString(),
+      lastSeen: new Date().toISOString(),
     });
 
     return res.status(200).json({ "message": "done" });
@@ -117,8 +117,7 @@ export async function CreatePost(req: Request, res: Response) {
       });
 
       const savedPost = await newPost.save();
-
-
+      
       console.log("saved post=")
       console.log(savedPost)
 

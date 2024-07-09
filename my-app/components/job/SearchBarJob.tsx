@@ -75,7 +75,7 @@ export default function InputJob({ placeholder,query,setQuery }: { placeholder?:
           />
         )}
       </div>
-      {!loading && searched && results.length > 0 && (
+      {/* {!loading && searched && results.length > 0 && (
         <div className="absolute top-full left-0 w-full bg-white border border-gray-300 rounded-lg mt-2 shadow-lg z-10">
           <ul>
             {results.map(user => (
@@ -91,7 +91,7 @@ export default function InputJob({ placeholder,query,setQuery }: { placeholder?:
             ))}
           </ul>
         </div>
-      )}
+      )} */}
     </div>
   );
 }
